@@ -11,7 +11,7 @@ export default async function DashboardPage() {
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-red-600 mb-4">Errore di Configurazione</h1>
-            <p className="text-gray-600">
+            <p className="text-black">
               URL del foglio Google non configurato. Controlla le variabili d&apos;ambiente.
             </p>
           </div>
@@ -24,7 +24,7 @@ export default async function DashboardPage() {
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-red-600 mb-4">Errore di Configurazione</h1>
-            <p className="text-gray-600">
+            <p className="text-black">
               Credenziali Google Service Account non configurate. Controlla le variabili d&apos;ambiente.
             </p>
           </div>
@@ -42,10 +42,10 @@ export default async function DashboardPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-red-600 mb-4">Errore di Caricamento</h1>
-          <p className="text-gray-600 mb-4">
+          <p className="text-black mb-4">
             Impossibile caricare i dati dal foglio Google Sheets.
           </p>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-black">
             <p>Verifica:</p>
             <ul className="list-disc list-inside mt-2">
               <li>La connessione Internet</li>

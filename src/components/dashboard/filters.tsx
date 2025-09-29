@@ -251,7 +251,7 @@ const MultiSelectFilter = memo(function MultiSelectFilter({ label, options, sele
               <button
                 type="button"
                 onClick={handleDeselectAll}
-                className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                className="text-xs px-2 py-1 bg-gray-100 text-black rounded hover:bg-gray-200 transition-colors"
               >
                 Deseleziona Tutti
               </button>

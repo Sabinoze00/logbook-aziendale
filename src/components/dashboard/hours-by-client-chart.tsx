@@ -42,7 +42,7 @@ export function HoursByClientChart({ data, isLoading, onPieClick }: HoursByClien
           <CardTitle>Distribuzione Ore per Cliente</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex h-[500px] items-center justify-center text-muted-foreground">
+          <div className="flex h-[500px] items-center justify-center text-black">
             Caricamento dati...
           </div>
         </CardContent>
@@ -57,7 +57,7 @@ export function HoursByClientChart({ data, isLoading, onPieClick }: HoursByClien
           <CardTitle>Distribuzione Ore per Cliente</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex h-[500px] items-center justify-center text-muted-foreground">
+          <div className="flex h-[500px] items-center justify-center text-black">
             Nessun dato disponibile
           </div>
         </CardContent>
