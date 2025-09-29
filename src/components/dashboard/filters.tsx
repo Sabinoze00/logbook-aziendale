@@ -309,7 +309,7 @@ const MultiSelectFilter = memo(function MultiSelectFilter({ label, options, sele
               ) : (
                 <div className="px-3 py-4 text-center text-gray-500 text-sm">
                   <Search className="h-5 w-5 mx-auto mb-2 opacity-50" />
-                  Nessun risultato trovato per "{searchTerm}"
+                  Nessun risultato trovato per &quot;{searchTerm}&quot;
                 </div>
               )}
             </div>

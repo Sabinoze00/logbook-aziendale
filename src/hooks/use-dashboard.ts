@@ -134,16 +134,16 @@ export function useDashboard({ initialData }: UseDashboardProps) {
   }
 
   // Drill-down functionality for interactive charts
-  const handleDrillDown = (filterKey: 'collaborators' | 'clients', value: string) => {
+  const handleDrillDown = (filterKey: 'collaborators' | 'clients' | 'macroActivities', value: string) => {
     // Quando si fa un drill-down, si imposta un solo valore per quel filtro
     // e si resettano gli altri filtri di tipo multi-selezione per evitare conflitti.
     setFilters(prevFilters => ({
       ...prevFilters,
       collaborators: filterKey === 'collaborators' ? [value] : undefined,
       clients: filterKey === 'clients' ? [value] : undefined,
+      macroActivities: filterKey === 'macroActivities' ? [value] : undefined,
       // Opzionale: resetta altri filtri per una visione più pulita
       departments: undefined,
-      macroActivities: undefined,
     }))
   }
 
