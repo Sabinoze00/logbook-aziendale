@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback, memo } from 'react'
 import { FilterOptions } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -34,15 +34,65 @@ export function Filters({
     })
   }
 
-  const handleMultiSelectChange = (field: keyof FilterOptions, values: string[]) => {
+  const handleMultiSelectChange = useCallback((field: keyof FilterOptions, values: string[]) => {
     onFiltersChange({
       ...filters,
       [field]: values.length > 0 ? values : undefined
     })
-  }
+  }, [filters, onFiltersChange])
+
+  // Memoized callbacks for each filter to prevent unnecessary re-renders
+  const handleCollaboratorsChange = useCallback((values: string[]) => {
+    handleMultiSelectChange('collaborators', values)
+  }, [handleMultiSelectChange])
+
+  const handleDepartmentsChange = useCallback((values: string[]) => {
+    handleMultiSelectChange('departments', values)
+  }, [handleMultiSelectChange])
+
+  const handleMacroActivitiesChange = useCallback((values: string[]) => {
+    handleMultiSelectChange('macroActivities', values)
+  }, [handleMultiSelectChange])
+
+  const handleClientsChange = useCallback((values: string[]) => {
+    handleMultiSelectChange('clients', values)
+  }, [handleMultiSelectChange])
 
   const formatDateForInput = (date: Date) => {
     return date.toISOString().split('T')[0]
+  }
+
+  // Preset date ranges
+  const applyPresetRange = (preset: string) => {
+    const today = new Date()
+    const startDate = new Date()
+
+    switch (preset) {
+      case 'today':
+        onFiltersChange({ ...filters, startDate: today, endDate: today })
+        break
+      case 'last7days':
+        startDate.setDate(today.getDate() - 7)
+        onFiltersChange({ ...filters, startDate, endDate: today })
+        break
+      case 'last30days':
+        startDate.setDate(today.getDate() - 30)
+        onFiltersChange({ ...filters, startDate, endDate: today })
+        break
+      case 'thisMonth':
+        startDate.setDate(1)
+        onFiltersChange({ ...filters, startDate, endDate: today })
+        break
+      case 'lastMonth':
+        const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1)
+        const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0)
+        onFiltersChange({ ...filters, startDate: lastMonth, endDate: lastMonthEnd })
+        break
+      case 'thisYear':
+        const yearStart = new Date(today.getFullYear(), 0, 1)
+        onFiltersChange({ ...filters, startDate: yearStart, endDate: today })
+        break
+    }
   }
 
   return (
@@ -63,6 +113,32 @@ export function Filters({
         </Button>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Date Range Presets */}
+        <div>
+          <label className="block text-sm font-medium mb-2">Intervalli Predefiniti</label>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { key: 'today', label: 'Oggi' },
+              { key: 'last7days', label: 'Ultimi 7 giorni' },
+              { key: 'last30days', label: 'Ultimi 30 giorni' },
+              { key: 'thisMonth', label: 'Questo mese' },
+              { key: 'lastMonth', label: 'Mese scorso' },
+              { key: 'thisYear', label: 'Quest\'anno' }
+            ].map(preset => (
+              <Button
+                key={preset.key}
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => applyPresetRange(preset.key)}
+                className="text-xs"
+              >
+                {preset.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+
         {/* Date Range */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -91,28 +167,28 @@ export function Filters({
             label="Collaboratori"
             options={availableCollaborators}
             selected={filters.collaborators || []}
-            onChange={(values) => handleMultiSelectChange('collaborators', values)}
+            onChange={handleCollaboratorsChange}
           />
 
           <MultiSelectFilter
             label="Reparti"
             options={availableDepartments}
             selected={filters.departments || []}
-            onChange={(values) => handleMultiSelectChange('departments', values)}
+            onChange={handleDepartmentsChange}
           />
 
           <MultiSelectFilter
             label="Macro Attività"
             options={availableMacroActivities}
             selected={filters.macroActivities || []}
-            onChange={(values) => handleMultiSelectChange('macroActivities', values)}
+            onChange={handleMacroActivitiesChange}
           />
 
           <MultiSelectFilter
             label="Clienti"
             options={availableClients}
             selected={filters.clients || []}
-            onChange={(values) => handleMultiSelectChange('clients', values)}
+            onChange={handleClientsChange}
           />
         </div>
       </CardContent>
@@ -127,7 +203,7 @@ interface MultiSelectFilterProps {
   onChange: (values: string[]) => void
 }
 
-function MultiSelectFilter({ label, options, selected, onChange }: MultiSelectFilterProps) {
+const MultiSelectFilter = memo(function MultiSelectFilter({ label, options, selected, onChange }: MultiSelectFilterProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   const handleToggle = (option: string) => {
@@ -136,6 +212,14 @@ function MultiSelectFilter({ label, options, selected, onChange }: MultiSelectFi
     } else {
       onChange([...selected, option])
     }
+  }
+
+  const handleSelectAll = () => {
+    onChange(options)
+  }
+
+  const handleDeselectAll = () => {
+    onChange([])
   }
 
   return (
@@ -155,6 +239,23 @@ function MultiSelectFilter({ label, options, selected, onChange }: MultiSelectFi
 
         {isOpen && (
           <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+            {/* Select All/Deselect All buttons */}
+            <div className="px-3 py-2 border-b border-gray-200 bg-gray-50 flex gap-2">
+              <button
+                type="button"
+                onClick={handleSelectAll}
+                className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+              >
+                Seleziona Tutti
+              </button>
+              <button
+                type="button"
+                onClick={handleDeselectAll}
+                className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+              >
+                Deseleziona Tutti
+              </button>
+            </div>
             {options.map(option => (
               <div key={option} className="px-3 py-2 hover:bg-gray-100">
                 <label className="flex items-center cursor-pointer">
@@ -173,4 +274,4 @@ function MultiSelectFilter({ label, options, selected, onChange }: MultiSelectFi
       </div>
     </div>
   )
-}
+})

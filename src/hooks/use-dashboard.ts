@@ -26,7 +26,7 @@ export function useDashboard({ initialData }: UseDashboardProps) {
     return processLogbookEntries(data.logbook)
   }, [data.logbook])
 
-  // Initialize filters with last 30 days
+  // Initialize filters with dynamic date range
   const [filters, setFilters] = useState<FilterOptions>(() => {
     const today = new Date()
     const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000)
@@ -36,6 +36,21 @@ export function useDashboard({ initialData }: UseDashboardProps) {
       endDate: today
     }
   })
+
+  // Update filters when processedLogbook changes to use full date range
+  useEffect(() => {
+    if (processedLogbook.length > 0) {
+      const dates = processedLogbook.map(entry => entry.data.getTime())
+      const minDate = new Date(Math.min(...dates))
+      const maxDate = new Date(Math.max(...dates))
+
+      setFilters(prevFilters => ({
+        ...prevFilters,
+        startDate: minDate,
+        endDate: maxDate
+      }))
+    }
+  }, [processedLogbook])
 
   // Get unique values for filter options
   const availableCollaborators = useMemo(() => {
@@ -113,6 +128,20 @@ export function useDashboard({ initialData }: UseDashboardProps) {
     }
   }
 
+  // Drill-down functionality for interactive charts
+  const handleDrillDown = (filterKey: 'collaborators' | 'clients', value: string) => {
+    // Quando si fa un drill-down, si imposta un solo valore per quel filtro
+    // e si resettano gli altri filtri di tipo multi-selezione per evitare conflitti.
+    setFilters(prevFilters => ({
+      ...prevFilters,
+      collaborators: filterKey === 'collaborators' ? [value] : undefined,
+      clients: filterKey === 'clients' ? [value] : undefined,
+      // Opzionale: resetta altri filtri per una visione più pulita
+      departments: undefined,
+      macroActivities: undefined,
+    }))
+  }
+
   return {
     // Data
     data,
@@ -134,6 +163,9 @@ export function useDashboard({ initialData }: UseDashboardProps) {
     isLoading,
     error,
     refreshData,
+
+    // Interactive functionality
+    handleDrillDown,
 
     // Computed values
     recordCount: filteredLogbook.length

@@ -216,7 +216,16 @@ export function getCollaboratorSummary(
     const totalPeriodHours = totalPeriodEntries.reduce((sum, entry) => sum + entry.minutiImpiegati, 0) / 60
 
     // Effective hourly rate
-    const effectiveHourlyRate = totalPeriodHours > 0 ? totalCompensation / totalPeriodHours : 0
+    // Se ci sono ore lavorate, calcola il costo orario normalmente
+    // Se non ci sono ore ma c'è compenso, imposta a -1 per indicare il caso speciale
+    // Se non ci sono né ore né compenso, imposta a 0
+    let effectiveHourlyRate = 0
+    if (totalPeriodHours > 0) {
+      effectiveHourlyRate = totalCompensation / totalPeriodHours
+    } else if (totalCompensation > 0) {
+      // Caso speciale: compenso presente ma zero ore lavorate
+      effectiveHourlyRate = -1
+    }
 
     return {
       collaboratore: collaboratorName,

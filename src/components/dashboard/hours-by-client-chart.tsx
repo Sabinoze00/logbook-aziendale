@@ -5,14 +5,51 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 interface HoursByClientChartProps {
   data: Array<{ cliente: string; ore: number }>
+  isLoading?: boolean
+  onPieClick?: (cliente: string) => void
 }
 
-const COLORS = [
+const BASE_COLORS = [
   '#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8',
   '#82ca9d', '#ffc658', '#ff7300', '#a4de6c', '#d084d0'
 ]
 
-export function HoursByClientChart({ data }: HoursByClientChartProps) {
+// Generate dynamic colors using HSL for better variety
+const generateColors = (count: number): string[] => {
+  if (count <= BASE_COLORS.length) {
+    return BASE_COLORS.slice(0, count)
+  }
+
+  const colors = [...BASE_COLORS]
+  const additionalColors = count - BASE_COLORS.length
+
+  for (let i = 0; i < additionalColors; i++) {
+    // Generate colors with good contrast and variety
+    const hue = (i * 137.5) % 360 // Golden angle approximation for good distribution
+    const saturation = 60 + (i % 3) * 15 // Vary saturation between 60-90%
+    const lightness = 45 + (i % 4) * 10 // Vary lightness between 45-75%
+    colors.push(`hsl(${hue}, ${saturation}%, ${lightness}%)`)
+  }
+
+  return colors
+}
+
+export function HoursByClientChart({ data, isLoading, onPieClick }: HoursByClientChartProps) {
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Distribuzione Ore per Cliente</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex h-[500px] items-center justify-center text-muted-foreground">
+            Caricamento dati...
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
   if (data.length === 0) {
     return (
       <Card>
@@ -20,7 +57,7 @@ export function HoursByClientChart({ data }: HoursByClientChartProps) {
           <CardTitle>Distribuzione Ore per Cliente</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex h-[400px] items-center justify-center text-muted-foreground">
+          <div className="flex h-[500px] items-center justify-center text-muted-foreground">
             Nessun dato disponibile
           </div>
         </CardContent>
@@ -58,13 +95,16 @@ export function HoursByClientChart({ data }: HoursByClientChartProps) {
     return `${percent}%`
   }
 
+  // Generate colors based on the number of data points
+  const chartColors = generateColors(preparedData.length)
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Distribuzione Ore per Cliente</CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={400}>
+        <ResponsiveContainer width="100%" height={500}>
           <PieChart>
             <Pie
               data={preparedData}
@@ -76,9 +116,15 @@ export function HoursByClientChart({ data }: HoursByClientChartProps) {
               innerRadius={40}
               fill="#8884d8"
               dataKey="ore"
+              onClick={(payload) => {
+                if (onPieClick && payload) {
+                  onPieClick(payload.cliente)
+                }
+              }}
+              style={{ cursor: onPieClick ? 'pointer' : 'default' }}
             >
               {preparedData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                <Cell key={`cell-${index}`} fill={chartColors[index]} />
               ))}
             </Pie>
             <Tooltip formatter={formatTooltip} />

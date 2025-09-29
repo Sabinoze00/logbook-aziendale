@@ -118,7 +118,7 @@ function processLogbookData(rawData: string[][]): LogbookEntry[] {
 }
 
 function parseDate(dateStr: string): Date {
-  if (!dateStr) return new Date()
+  if (!dateStr) return new Date('')
 
   // Try DD/MM/YYYY format first
   const ddmmyyyy = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/)
@@ -150,7 +150,9 @@ function parseDate(dateStr: string): Date {
     }
   }
 
-  return new Date()
+  // Se nessun formato corrisponde o la stringa è vuota, restituisce una data non valida.
+  // Questa verrà poi scartata dalla funzione processLogbookData.
+  return new Date('')
 }
 
 function processClientData(rawData: string[][]): ClientData[] {

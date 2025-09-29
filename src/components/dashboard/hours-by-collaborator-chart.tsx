@@ -5,9 +5,26 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 interface HoursByCollaboratorChartProps {
   data: Array<{ nome: string; ore: number }>
+  isLoading?: boolean
+  onBarClick?: (collaboratore: string) => void
 }
 
-export function HoursByCollaboratorChart({ data }: HoursByCollaboratorChartProps) {
+export function HoursByCollaboratorChart({ data, isLoading, onBarClick }: HoursByCollaboratorChartProps) {
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Ore Lavorate per Collaboratore</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex h-[500px] items-center justify-center text-muted-foreground">
+            Caricamento dati...
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
   if (data.length === 0) {
     return (
       <Card>
@@ -15,7 +32,7 @@ export function HoursByCollaboratorChart({ data }: HoursByCollaboratorChartProps
           <CardTitle>Ore Lavorate per Collaboratore</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex h-[400px] items-center justify-center text-muted-foreground">
+          <div className="flex h-[500px] items-center justify-center text-muted-foreground">
             Nessun dato disponibile
           </div>
         </CardContent>
@@ -39,7 +56,7 @@ export function HoursByCollaboratorChart({ data }: HoursByCollaboratorChartProps
         <CardTitle>Ore Lavorate per Collaboratore</CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={Math.max(400, data.length * 50)}>
+        <ResponsiveContainer width="100%" height={Math.max(500, data.length * 50)}>
           <BarChart
             data={sortedData}
             layout="horizontal"
@@ -54,7 +71,16 @@ export function HoursByCollaboratorChart({ data }: HoursByCollaboratorChartProps
             <XAxis type="number" />
             <YAxis dataKey="nome" type="category" width={100} />
             <Tooltip formatter={formatTooltip} />
-            <Bar dataKey="ore" fill="#8884d8" />
+            <Bar
+              dataKey="ore"
+              fill="#8884d8"
+              onClick={(payload) => {
+                if (onBarClick && payload) {
+                  onBarClick(payload.nome)
+                }
+              }}
+              style={{ cursor: onBarClick ? 'pointer' : 'default' }}
+            />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>

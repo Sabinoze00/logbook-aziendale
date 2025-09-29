@@ -1,5 +1,8 @@
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { formatCurrency } from '@/lib/utils'
+import { ChevronUp, ChevronDown, Download } from 'lucide-react'
 
 interface CollaboratorSummaryTableProps {
   data: Array<{
@@ -10,9 +13,106 @@ interface CollaboratorSummaryTableProps {
     oreFiltrate: number
     clientiSeguiti: number
   }>
+  isLoading?: boolean
 }
 
-export function CollaboratorSummaryTable({ data }: CollaboratorSummaryTableProps) {
+type SortKey = 'collaboratore' | 'compensoTotale' | 'oreTotaliPeriodo' | 'costoOrarioEffettivo' | 'oreFiltrate' | 'clientiSeguiti'
+type SortDirection = 'asc' | 'desc'
+
+export function CollaboratorSummaryTable({ data, isLoading }: CollaboratorSummaryTableProps) {
+  const [sortKey, setSortKey] = useState<SortKey | null>(null)
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
+
+  // Sort data based on current sort settings
+  const sortedData = [...data].sort((a, b) => {
+    if (!sortKey) return 0
+
+    let aValue = a[sortKey]
+    let bValue = b[sortKey]
+
+    // Handle special case for costoOrarioEffettivo (-1 values)
+    if (sortKey === 'costoOrarioEffettivo') {
+      if (aValue === -1) aValue = -Infinity
+      if (bValue === -1) bValue = -Infinity
+    }
+
+    if (typeof aValue === 'string') {
+      aValue = aValue.toLowerCase()
+      bValue = (bValue as string).toLowerCase()
+    }
+
+    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1
+    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1
+    return 0
+  })
+
+  const handleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortKey(key)
+      setSortDirection('desc')
+    }
+  }
+
+  // CSV Export function
+  const exportToCSV = () => {
+    const headers = ['Collaboratore', 'Compenso Totale', 'Ore Totali nel Periodo', 'Costo Orario Effettivo', 'Ore Lavorate (Filtrate)', 'Clienti Seguiti']
+    const csvContent = [
+      headers.join(','),
+      ...sortedData.map(row => [
+        `"${row.collaboratore}"`,
+        row.compensoTotale,
+        row.oreTotaliPeriodo.toFixed(1),
+        row.costoOrarioEffettivo === -1 ? 'N/A' : row.costoOrarioEffettivo.toFixed(2),
+        row.oreFiltrate.toFixed(1),
+        row.clientiSeguiti
+      ].join(','))
+    ].join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob)
+      link.setAttribute('href', url)
+      link.setAttribute('download', `riepilogo_collaboratori_${new Date().toISOString().split('T')[0]}.csv`)
+      link.style.visibility = 'hidden'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    }
+  }
+
+  // Helper function to render sortable header
+  const renderSortableHeader = (label: string, key: SortKey) => (
+    <th className="text-right py-3 px-4 font-medium">
+      <button
+        onClick={() => handleSort(key)}
+        className="flex items-center gap-1 hover:text-blue-600 transition-colors ml-auto"
+      >
+        {label}
+        {sortKey === key && (
+          sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+        )}
+      </button>
+    </th>
+  )
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Riepilogo Collaboratori</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex h-[200px] items-center justify-center text-muted-foreground">
+            Caricamento dati...
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
   if (data.length === 0) {
     return (
       <Card>
@@ -30,29 +130,51 @@ export function CollaboratorSummaryTable({ data }: CollaboratorSummaryTableProps
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Riepilogo Collaboratori</CardTitle>
+        <Button onClick={exportToCSV} size="sm" variant="outline" className="flex items-center gap-2">
+          <Download className="h-4 w-4" />
+          Esporta CSV
+        </Button>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b">
-                <th className="text-left py-3 px-4 font-medium">Collaboratore</th>
-                <th className="text-right py-3 px-4 font-medium">Compenso Tot. nei Mesi Sel.</th>
-                <th className="text-right py-3 px-4 font-medium">Ore Tot. nel Periodo</th>
-                <th className="text-right py-3 px-4 font-medium">Costo Orario Effettivo</th>
-                <th className="text-right py-3 px-4 font-medium">Ore Lavorate (Filtrate)</th>
-                <th className="text-right py-3 px-4 font-medium">Clienti Seguiti (Filtrati)</th>
+                <th className="text-left py-3 px-4 font-medium">
+                  <button
+                    onClick={() => handleSort('collaboratore')}
+                    className="flex items-center gap-1 hover:text-blue-600 transition-colors"
+                  >
+                    Collaboratore
+                    {sortKey === 'collaboratore' && (
+                      sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                    )}
+                  </button>
+                </th>
+                {renderSortableHeader('Compenso Tot. nei Mesi Sel.', 'compensoTotale')}
+                {renderSortableHeader('Ore Tot. nel Periodo', 'oreTotaliPeriodo')}
+                {renderSortableHeader('Costo Orario Effettivo', 'costoOrarioEffettivo')}
+                {renderSortableHeader('Ore Lavorate (Filtrate)', 'oreFiltrate')}
+                {renderSortableHeader('Clienti Seguiti (Filtrati)', 'clientiSeguiti')}
               </tr>
             </thead>
             <tbody>
-              {data.map((row, index) => (
+              {sortedData.map((row, index) => (
                 <tr key={index} className="border-b hover:bg-gray-50">
                   <td className="py-3 px-4 font-medium">{row.collaboratore}</td>
                   <td className="py-3 px-4 text-right">{formatCurrency(row.compensoTotale)}</td>
                   <td className="py-3 px-4 text-right">{row.oreTotaliPeriodo.toFixed(1)} h</td>
-                  <td className="py-3 px-4 text-right">{formatCurrency(row.costoOrarioEffettivo)}</td>
+                  <td className="py-3 px-4 text-right">
+                    {row.costoOrarioEffettivo === -1 ? (
+                      <span className="text-amber-600 text-xs" title="Compenso presente ma zero ore lavorate nel periodo">
+                        N/A*
+                      </span>
+                    ) : (
+                      formatCurrency(row.costoOrarioEffettivo)
+                    )}
+                  </td>
                   <td className="py-3 px-4 text-right">{row.oreFiltrate.toFixed(1)} h</td>
                   <td className="py-3 px-4 text-right">{row.clientiSeguiti}</td>
                 </tr>

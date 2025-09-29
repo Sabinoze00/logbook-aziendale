@@ -27,6 +27,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
     isLoading,
     error,
     refreshData,
+    handleDrillDown,
     recordCount
   } = useDashboard({ initialData })
 
@@ -51,7 +52,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="px-8 py-4">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Dashboard Aziendale</h1>
@@ -67,7 +68,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="px-8 py-8">
         <div className="space-y-8">
           {/* Filters */}
           <Filters
@@ -86,13 +87,21 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">
               Metriche Chiave del Periodo Selezionato
             </h2>
-            <MetricsCards kpis={kpis} />
+            <MetricsCards kpis={kpis} isLoading={isLoading} />
           </div>
 
           {/* Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <HoursByCollaboratorChart data={hoursByCollaborator} />
-            <HoursByClientChart data={hoursByClient} />
+            <HoursByCollaboratorChart
+              data={hoursByCollaborator}
+              isLoading={isLoading}
+              onBarClick={(collaboratorName) => handleDrillDown('collaborators', collaboratorName)}
+            />
+            <HoursByClientChart
+              data={hoursByClient}
+              isLoading={isLoading}
+              onPieClick={(clientName) => handleDrillDown('clients', clientName)}
+            />
           </div>
 
           {/* Collaborator Summary Table */}
@@ -100,7 +109,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">
               Riepilogo Collaboratori (basato sui filtri applicati)
             </h2>
-            <CollaboratorSummaryTable data={collaboratorSummary} />
+            <CollaboratorSummaryTable data={collaboratorSummary} isLoading={isLoading} />
           </div>
         </div>
       </main>
