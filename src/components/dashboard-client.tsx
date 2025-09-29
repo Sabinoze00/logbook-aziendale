@@ -76,7 +76,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
 
           {/* Colonna Filtri (20% della larghezza su schermi grandi) */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 filters-column">
             <div className="lg:sticky lg:top-8">
               <Filters
                 filters={filters}

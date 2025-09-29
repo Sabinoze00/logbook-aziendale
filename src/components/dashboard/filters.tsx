@@ -240,7 +240,7 @@ const MultiSelectFilter = memo(function MultiSelectFilter({ label, options, sele
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full px-4 py-3 text-left border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/30 focus:border-blue-500 bg-white text-gray-800 shadow-sm hover:shadow-md transition-all duration-200 font-medium"
+          className="w-full px-4 py-3 text-left border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/30 focus:border-blue-500 bg-white text-black shadow-sm hover:shadow-md transition-all duration-200 font-medium"
         >
           <div className="flex items-center justify-between">
             <span>

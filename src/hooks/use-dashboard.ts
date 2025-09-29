@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { DashboardData, FilterOptions } from '@/lib/types'
+import { DashboardData, FilterOptions, LogbookEntry } from '@/lib/types'
 import {
-  processLogbookEntries,
+  processLogbookEntries as baseProcessLogbookEntries,
   filterLogbookData,
   calculateKPIs,
   getUniqueValues,
@@ -14,6 +14,16 @@ import {
   aggregateHoursByMicroActivity
 } from '@/lib/data-processor'
 
+// Funzione helper per garantire che le date siano oggetti Date
+const processLogbookEntries = (entries: LogbookEntry[]): LogbookEntry[] => {
+  const processed = entries.map(entry => ({
+    ...entry,
+    // Converte la data da stringa a oggetto Date se necessario
+    data: typeof entry.data === 'string' ? new Date(entry.data) : entry.data,
+  }))
+  return baseProcessLogbookEntries(processed)
+}
+
 interface UseDashboardProps {
   initialData: DashboardData
 }
@@ -23,8 +33,9 @@ export function useDashboard({ initialData }: UseDashboardProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Process logbook entries
+  // Process logbook entries with safe date conversion
   const processedLogbook = useMemo(() => {
+    // Usiamo la nostra nuova funzione sicura
     return processLogbookEntries(data.logbook)
   }, [data.logbook])
 
