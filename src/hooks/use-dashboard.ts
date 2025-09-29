@@ -52,7 +52,23 @@ export function useDashboard({ initialData }: UseDashboardProps) {
           startDate: minDate,
           endDate: maxDate
         }))
+      } else {
+        // Fallback nel caso non ci siano date valide
+        const today = new Date()
+        setFilters(prevFilters => ({
+          ...prevFilters,
+          startDate: today,
+          endDate: today
+        }))
       }
+    } else {
+      // Fallback se non ci sono proprio log
+      const today = new Date()
+      setFilters(prevFilters => ({
+        ...prevFilters,
+        startDate: today,
+        endDate: today
+      }))
     }
   }, [processedLogbook])
 

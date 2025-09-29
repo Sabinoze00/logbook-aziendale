@@ -116,7 +116,7 @@ export function Filters({
           Ricarica Dati
         </Button>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 pb-12">
         {/* Date Range Presets */}
         <div>
           <label className="block text-sm font-medium text-black mb-2">Intervalli Predefiniti</label>
@@ -292,7 +292,7 @@ const MultiSelectFilter = memo(function MultiSelectFilter({ label, options, sele
               {filteredOptions.length > 0 ? (
                 filteredOptions.map(option => (
                   <div key={option} className="px-3 py-2 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-150">
-                    <label className="flex items-center cursor-pointer text-gray-800">
+                    <label className="flex items-center cursor-pointer text-black">
                       <input
                         type="checkbox"
                         checked={selected.includes(option)}

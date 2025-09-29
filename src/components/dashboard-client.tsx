@@ -73,9 +73,9 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
       {/* Main Content */}
       <main className="px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
 
-          {/* Colonna Sinistra per i Filtri (Sticky) */}
+          {/* Colonna Filtri (20% della larghezza su schermi grandi) */}
           <div className="lg:col-span-1">
             <div className="lg:sticky lg:top-8">
               <Filters
@@ -91,8 +91,8 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
             </div>
           </div>
 
-          {/* Colonna Destra per il Contenuto (Scrollabile) */}
-          <div className="lg:col-span-3 space-y-8">
+          {/* Colonna Contenuti (80% della larghezza) */}
+          <div className="lg:col-span-4 space-y-8">
             {/* Metrics Cards */}
             <div>
               <h2 className="text-xl font-semibold text-black mb-4">
