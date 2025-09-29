@@ -105,7 +105,7 @@ export function CollaboratorSummaryTable({ data, isLoading }: CollaboratorSummar
           <CardTitle>Riepilogo Collaboratori</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex h-[200px] items-center justify-center text-muted-foreground">
+          <div className="flex h-[200px] items-center justify-center text-gray-900">
             Caricamento dati...
           </div>
         </CardContent>
@@ -120,7 +120,7 @@ export function CollaboratorSummaryTable({ data, isLoading }: CollaboratorSummar
           <CardTitle>Riepilogo Collaboratori</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex h-[200px] items-center justify-center text-muted-foreground">
+          <div className="flex h-[200px] items-center justify-center text-gray-900">
             Nessun dato disponibile
           </div>
         </CardContent>

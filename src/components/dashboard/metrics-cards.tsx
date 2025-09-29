@@ -66,7 +66,7 @@ export function MetricsCards({ kpis, isLoading }: MetricsCardsProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metric.value}</div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-gray-900">
               {metric.description}
             </p>
           </CardContent>
