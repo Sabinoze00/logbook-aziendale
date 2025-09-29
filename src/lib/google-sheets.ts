@@ -83,6 +83,10 @@ function processLogbookData(rawData: string[][]): LogbookEntry[] {
             break
           case 'data':
             entry.data = parseDate(value)
+            // Debug log per Jean
+            if (value && entry.nome === 'Jean') {
+              console.log(`[DEBUG] Jean data parsing: "${value}" -> ${entry.data} -> isValid: ${!isNaN(entry.data.getTime())}`)
+            }
             break
           case 'mese':
             entry.mese = value
@@ -114,7 +118,14 @@ function processLogbookData(rawData: string[][]): LogbookEntry[] {
 
       return entry as LogbookEntry
     })
-    .filter(entry => entry.data && !isNaN(entry.data.getTime())) // Filter invalid dates
+    .filter(entry => {
+      const isValid = entry.data && !isNaN(entry.data.getTime())
+      // Debug log per vedere cosa viene filtrato
+      if (!isValid && entry.nome === 'Jean') {
+        console.log(`[DEBUG] Jean entry filtered out:`, entry)
+      }
+      return isValid
+    }) // Filter invalid dates
 }
 
 function parseDate(dateStr: string): Date {
@@ -201,10 +212,6 @@ function processCompensData(rawData: string[][]): CompensData[] {
           const value = row[index] || ''
           if (value) {
             const numericValue = convertEuToNumber(value)
-            // Debug log per capire cosa succede
-            if (header === 'Gennaio' || header === 'Febbraio') {
-              console.log(`[DEBUG] Compenso ${compenso.collaboratore} - ${header}: "${value}" -> ${numericValue}`)
-            }
             compenso[header] = numericValue
           } else {
             compenso[header] = 0

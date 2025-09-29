@@ -35,17 +35,16 @@ export function formatCurrency(value: number): string {
 export function convertEuToNumber(amountStr: string): number {
   if (typeof amountStr !== 'string') return 0.0
 
-  // Remove euro symbol and spaces
-  let cleanStr = amountStr.replace('€', '').trim()
-
-  // Handle European format: replace dot as thousand separator and comma as decimal
-  if (cleanStr.includes(',')) {
-    cleanStr = cleanStr.replace(/\./g, '')
-    cleanStr = cleanStr.replace(',', '.')
-  }
+  // Rimuove il simbolo dell'euro e gli spazi, poi gestisce il formato europeo.
+  const cleanStr = amountStr
+    .replace('€', '')      // Rimuove il simbolo €
+    .trim()                // Rimuove spazi bianchi
+    .replace(/\./g, '')    // Rimuove i punti (separatori delle migliaia)
+    .replace(',', '.')     // Sostituisce la virgola (decimale) con un punto
 
   try {
-    return parseFloat(cleanStr)
+    const value = parseFloat(cleanStr);
+    return isNaN(value) ? 0.0 : value;
   } catch {
     return 0.0
   }
