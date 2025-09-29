@@ -89,6 +89,7 @@ export function HoursByClientChart({ data, isLoading, onPieClick }: HoursByClien
     return [value, name]
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderCustomizedLabel = (entry: any) => {
     const total = preparedData.reduce((sum, item) => sum + item.ore, 0)
     const percent = ((entry.ore / total) * 100).toFixed(1)
