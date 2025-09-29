@@ -117,6 +117,7 @@ export function HoursByClientChart({ data, isLoading, onPieClick }: HoursByClien
               innerRadius={40}
               fill="#8884d8"
               dataKey="ore"
+              nameKey="cliente"
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               onClick={(payload: any) => {
                 if (onPieClick && payload && payload.cliente) {

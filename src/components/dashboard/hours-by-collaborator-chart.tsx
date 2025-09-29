@@ -59,11 +59,11 @@ export function HoursByCollaboratorChart({ data, isLoading, onBarClick }: HoursB
         <ResponsiveContainer width="100%" height={Math.max(500, data.length * 50)}>
           <BarChart
             data={sortedData}
-            layout="horizontal"
+            layout="vertical"
             margin={{
               top: 5,
               right: 30,
-              left: 100,
+              left: 150,
               bottom: 5,
             }}
           >

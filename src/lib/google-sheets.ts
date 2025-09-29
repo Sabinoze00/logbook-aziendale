@@ -201,6 +201,10 @@ function processCompensData(rawData: string[][]): CompensData[] {
           const value = row[index] || ''
           if (value) {
             const numericValue = convertEuToNumber(value)
+            // Debug log per capire cosa succede
+            if (header === 'Gennaio' || header === 'Febbraio') {
+              console.log(`[DEBUG] Compenso ${compenso.collaboratore} - ${header}: "${value}" -> ${numericValue}`)
+            }
             compenso[header] = numericValue
           } else {
             compenso[header] = 0
