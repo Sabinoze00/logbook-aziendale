@@ -116,7 +116,7 @@ export function Filters({
           Ricarica Dati
         </Button>
       </CardHeader>
-      <CardContent className="space-y-6 pb-12">
+      <CardContent className="space-y-6 pb-24">
         {/* Date Range Presets */}
         <div>
           <label className="block text-sm font-medium text-black mb-2">Intervalli Predefiniti</label>
