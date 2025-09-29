@@ -6,6 +6,7 @@ import { MetricsCards } from '@/components/dashboard/metrics-cards'
 import { Filters } from '@/components/dashboard/filters'
 import { HoursByCollaboratorChart } from '@/components/dashboard/hours-by-collaborator-chart'
 import { HoursByClientChart } from '@/components/dashboard/hours-by-client-chart'
+import { HoursByMacroActivityChart } from '@/components/dashboard/hours-by-macro-activity-chart'
 import { CollaboratorSummaryTable } from '@/components/dashboard/collaborator-summary-table'
 
 interface DashboardClientProps {
@@ -19,6 +20,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
     kpis,
     hoursByCollaborator,
     hoursByClient,
+    hoursByMacroActivity,
     collaboratorSummary,
     availableCollaborators,
     availableDepartments,
@@ -91,7 +93,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
           </div>
 
           {/* Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
             <HoursByCollaboratorChart
               data={hoursByCollaborator}
               isLoading={isLoading}
@@ -101,6 +103,11 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
               data={hoursByClient}
               isLoading={isLoading}
               onPieClick={(clientName) => handleDrillDown('clients', clientName)}
+            />
+            <HoursByMacroActivityChart
+              data={hoursByMacroActivity}
+              isLoading={isLoading}
+              onPieClick={(macroActivity) => handleDrillDown('macroActivities', macroActivity)}
             />
           </div>
 

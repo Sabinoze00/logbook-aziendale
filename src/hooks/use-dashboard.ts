@@ -9,7 +9,8 @@ import {
   getUniqueValues,
   getCollaboratorSummary,
   aggregateHoursByCollaborator,
-  aggregateHoursByClient
+  aggregateHoursByClient,
+  aggregateHoursByMacroActivity
 } from '@/lib/data-processor'
 
 interface UseDashboardProps {
@@ -95,6 +96,10 @@ export function useDashboard({ initialData }: UseDashboardProps) {
     return aggregateHoursByClient(filteredLogbook)
   }, [filteredLogbook])
 
+  const hoursByMacroActivity = useMemo(() => {
+    return aggregateHoursByMacroActivity(filteredLogbook)
+  }, [filteredLogbook])
+
   // Get collaborator summary
   const collaboratorSummary = useMemo(() => {
     return getCollaboratorSummary(
@@ -149,6 +154,7 @@ export function useDashboard({ initialData }: UseDashboardProps) {
     kpis,
     hoursByCollaborator,
     hoursByClient,
+    hoursByMacroActivity,
     collaboratorSummary,
 
     // Filters

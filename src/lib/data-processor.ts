@@ -66,6 +66,18 @@ export function aggregateHoursByClient(entries: LogbookEntry[]) {
     .sort((a, b) => b.ore - a.ore)
 }
 
+export function aggregateHoursByMacroActivity(entries: LogbookEntry[]) {
+  const aggregated = entries.reduce((acc, entry) => {
+    const hours = entry.minutiImpiegati / 60
+    acc[entry.macroAttivita] = (acc[entry.macroAttivita] || 0) + hours
+    return acc
+  }, {} as Record<string, number>)
+
+  return Object.entries(aggregated)
+    .map(([macroAttivita, ore]) => ({ macroAttivita, ore }))
+    .sort((a, b) => b.ore - a.ore)
+}
+
 export function calculateKPIs(
   filteredEntries: LogbookEntry[],
   allEntries: LogbookEntry[],
