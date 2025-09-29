@@ -14,7 +14,7 @@ export function MetricsCards({ kpis, isLoading }: MetricsCardsProps) {
         {Array.from({ length: 5 }).map((_, index) => (
           <Card key={index}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
+              <CardTitle className="text-sm font-medium text-black">
                 <div className="h-4 bg-gray-200 rounded animate-pulse w-24"></div>
               </CardTitle>
             </CardHeader>
@@ -60,12 +60,12 @@ export function MetricsCards({ kpis, isLoading }: MetricsCardsProps) {
       {metrics.map((metric, index) => (
         <Card key={index}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-sm font-medium text-black">
               {metric.title}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{metric.value}</div>
+            <div className="text-2xl font-bold text-black">{metric.value}</div>
             <p className="text-xs text-gray-900">
               {metric.description}
             </p>

@@ -85,7 +85,7 @@ export function CollaboratorSummaryTable({ data, isLoading }: CollaboratorSummar
 
   // Helper function to render sortable header
   const renderSortableHeader = (label: string, key: SortKey) => (
-    <th className="text-right py-3 px-4 font-medium">
+    <th className="text-right py-3 px-4 font-medium text-black">
       <button
         onClick={() => handleSort(key)}
         className="flex items-center gap-1 hover:text-blue-600 transition-colors ml-auto"
@@ -142,7 +142,7 @@ export function CollaboratorSummaryTable({ data, isLoading }: CollaboratorSummar
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b">
-                <th className="text-left py-3 px-4 font-medium">
+                <th className="text-left py-3 px-4 font-medium text-black">
                   <button
                     onClick={() => handleSort('collaboratore')}
                     className="flex items-center gap-1 hover:text-blue-600 transition-colors"
@@ -163,20 +163,20 @@ export function CollaboratorSummaryTable({ data, isLoading }: CollaboratorSummar
             <tbody>
               {sortedData.map((row, index) => (
                 <tr key={index} className="border-b hover:bg-gray-50">
-                  <td className="py-3 px-4 font-medium">{row.collaboratore}</td>
-                  <td className="py-3 px-4 text-right">{formatCurrency(row.compensoTotale)}</td>
-                  <td className="py-3 px-4 text-right">{row.oreTotaliPeriodo.toFixed(1)} h</td>
+                  <td className="py-3 px-4 font-medium text-black">{row.collaboratore}</td>
+                  <td className="py-3 px-4 text-right text-black">{formatCurrency(row.compensoTotale)}</td>
+                  <td className="py-3 px-4 text-right text-black">{row.oreTotaliPeriodo.toFixed(1)} h</td>
                   <td className="py-3 px-4 text-right">
                     {row.costoOrarioEffettivo === -1 ? (
                       <span className="text-amber-600 text-xs" title="Compenso presente ma zero ore lavorate nel periodo">
                         N/A*
                       </span>
                     ) : (
-                      formatCurrency(row.costoOrarioEffettivo)
+                      <span className="text-black">{formatCurrency(row.costoOrarioEffettivo)}</span>
                     )}
                   </td>
-                  <td className="py-3 px-4 text-right">{row.oreFiltrate.toFixed(1)} h</td>
-                  <td className="py-3 px-4 text-right">{row.clientiSeguiti}</td>
+                  <td className="py-3 px-4 text-right text-black">{row.oreFiltrate.toFixed(1)} h</td>
+                  <td className="py-3 px-4 text-right text-black">{row.clientiSeguiti}</td>
                 </tr>
               ))}
             </tbody>

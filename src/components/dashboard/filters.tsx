@@ -115,7 +115,7 @@ export function Filters({
       <CardContent className="space-y-4">
         {/* Date Range Presets */}
         <div>
-          <label className="block text-sm font-medium mb-2">Intervalli Predefiniti</label>
+          <label className="block text-sm font-medium text-black mb-2">Intervalli Predefiniti</label>
           <div className="flex flex-wrap gap-2">
             {[
               { key: 'today', label: 'Oggi' },
@@ -142,7 +142,7 @@ export function Filters({
         {/* Date Range */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Data Inizio</label>
+            <label className="block text-sm font-medium text-black mb-2">Data Inizio</label>
             <input
               type="date"
               value={formatDateForInput(filters.startDate)}
@@ -151,7 +151,7 @@ export function Filters({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">Data Fine</label>
+            <label className="block text-sm font-medium text-black mb-2">Data Fine</label>
             <input
               type="date"
               value={formatDateForInput(filters.endDate)}
@@ -224,7 +224,7 @@ const MultiSelectFilter = memo(function MultiSelectFilter({ label, options, sele
 
   return (
     <div className="relative">
-      <label className="block text-sm font-medium mb-2">{label}</label>
+      <label className="block text-sm font-medium text-black mb-2">{label}</label>
       <div className="relative">
         <button
           type="button"
