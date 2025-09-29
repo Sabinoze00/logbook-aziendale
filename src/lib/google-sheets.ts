@@ -73,7 +73,7 @@ function processLogbookData(rawData: string[][]): LogbookEntry[] {
   return rows
     .filter(row => row.some(cell => cell && cell.trim())) // Filter empty rows
     .map(row => {
-      const entry: any = {}
+      const entry: Partial<LogbookEntry> = {}
 
       headers.forEach((header, index) => {
         const value = row[index] || ''
@@ -168,7 +168,7 @@ function processClientData(rawData: string[][]): ClientData[] {
       return actualIndex === -1 || row[actualIndex] === 'Actual'
     })
     .map(row => {
-      const client: any = {}
+      const client: Partial<ClientData> = {}
 
       headers.forEach((header, index) => {
         if (header.toLowerCase() === 'cliente') {
@@ -191,7 +191,7 @@ function processCompensData(rawData: string[][]): CompensData[] {
   return rows
     .filter(row => row.some(cell => cell && cell.trim()))
     .map(row => {
-      const compenso: any = {}
+      const compenso: Partial<CompensData> = {}
 
       headers.forEach((header, index) => {
         if (header.toLowerCase() === 'collaboratore' || header.toLowerCase() === 'collaboaratore') {
@@ -226,7 +226,7 @@ function processMappingData(rawData: string[][]): MappingData[] {
   return rows
     .filter(row => row.some(cell => cell && cell.trim()))
     .map(row => {
-      const mapping: any = {}
+      const mapping: Partial<MappingData> = {}
 
       headers.forEach((header, index) => {
         if (header.toLowerCase() === 'cliente') {

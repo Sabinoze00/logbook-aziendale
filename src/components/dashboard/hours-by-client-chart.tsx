@@ -82,14 +82,14 @@ export function HoursByClientChart({ data, isLoading, onPieClick }: HoursByClien
     ]
   })()
 
-  const formatTooltip = (value: any, name: string) => {
+  const formatTooltip = (value: number, name: string) => {
     if (name === 'ore') {
       return [`${value.toFixed(1)} ore`, 'Ore Lavorate']
     }
     return [value, name]
   }
 
-  const renderCustomizedLabel = (entry: any) => {
+  const renderCustomizedLabel = (entry: { ore: number }) => {
     const total = preparedData.reduce((sum, item) => sum + item.ore, 0)
     const percent = ((entry.ore / total) * 100).toFixed(1)
     return `${percent}%`

@@ -43,7 +43,7 @@ export function HoursByCollaboratorChart({ data, isLoading, onBarClick }: HoursB
   // Sort data in ascending order for better visualization
   const sortedData = [...data].sort((a, b) => a.ore - b.ore)
 
-  const formatTooltip = (value: any, name: string) => {
+  const formatTooltip = (value: number, name: string) => {
     if (name === 'ore') {
       return [`${value.toFixed(1)} ore`, 'Ore Lavorate']
     }

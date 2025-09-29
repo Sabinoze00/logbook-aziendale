@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { DashboardData, LogbookEntry, FilterOptions, KPIData } from '@/lib/types'
+import { DashboardData, FilterOptions } from '@/lib/types'
 import {
   processLogbookEntries,
   filterLogbookData,

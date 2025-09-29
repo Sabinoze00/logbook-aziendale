@@ -3,11 +3,5 @@
     "src/app/api/dashboard-data/route.ts": {
       "maxDuration": 30
     }
-  },
-  "crons": [
-    {
-      "path": "/api/dashboard-data",
-      "schedule": "0 */30 * * * *"
-    }
-  ]
+  }
 }
