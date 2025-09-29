@@ -89,7 +89,7 @@ export function HoursByClientChart({ data, isLoading, onPieClick }: HoursByClien
     return [value, name]
   }
 
-  const renderCustomizedLabel = (entry: { ore: number }) => {
+  const renderCustomizedLabel = (entry: any) => {
     const total = preparedData.reduce((sum, item) => sum + item.ore, 0)
     const percent = ((entry.ore / total) * 100).toFixed(1)
     return `${percent}%`
