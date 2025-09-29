@@ -41,16 +41,18 @@ export function useDashboard({ initialData }: UseDashboardProps) {
 
   // Update filters when processedLogbook changes to use full date range
   useEffect(() => {
-    if (processedLogbook.length > 0) {
-      const dates = processedLogbook.map(entry => entry.data.getTime())
-      const minDate = new Date(Math.min(...dates))
-      const maxDate = new Date(Math.max(...dates))
+    if (processedLogbook && processedLogbook.length > 0) {
+      const dates = processedLogbook.map(entry => entry.data.getTime()).filter(time => !isNaN(time))
+      if (dates.length > 0) {
+        const minDate = new Date(Math.min(...dates))
+        const maxDate = new Date(Math.max(...dates))
 
-      setFilters(prevFilters => ({
-        ...prevFilters,
-        startDate: minDate,
-        endDate: maxDate
-      }))
+        setFilters(prevFilters => ({
+          ...prevFilters,
+          startDate: minDate,
+          endDate: maxDate
+        }))
+      }
     }
   }, [processedLogbook])
 
@@ -158,28 +160,23 @@ export function useDashboard({ initialData }: UseDashboardProps) {
       })
 
       if (!response.ok) {
-        throw new Error('Failed to fetch data')
+        throw new Error('Failed to fetch data from API')
       }
 
       const newData = await response.json()
 
-      // **Aggiungi questo controllo di validazione**
-      if (newData && newData.logbook && newData.clients && newData.compensi && newData.mapping) {
-        // Verifica anche che logbook sia un array
-        if (Array.isArray(newData.logbook)) {
-          setData(newData)
-        } else {
-          console.error("Il campo 'logbook' non è un array:", newData.logbook)
-          throw new Error('I dati del logbook non sono nel formato corretto (array atteso).')
-        }
-      } else {
-        // Se i dati non sono validi, imposta uno stato di errore e non aggiornare i dati
-        console.error("Dati ricevuti dall'API non validi:", newData)
-        throw new Error('I dati ricevuti non sono nel formato corretto.')
+      // Sanificazione e validazione completa dei dati ricevuti
+      const sanitizedData = {
+        logbook: Array.isArray(newData.logbook) ? newData.logbook : [],
+        clients: Array.isArray(newData.clients) ? newData.clients : [],
+        compensi: Array.isArray(newData.compensi) ? newData.compensi : [],
+        mapping: Array.isArray(newData.mapping) ? newData.mapping : []
       }
 
+      setData(sanitizedData)
+
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+      setError(err instanceof Error ? err.message : 'An unknown error occurred')
     } finally {
       setIsLoading(false)
     }

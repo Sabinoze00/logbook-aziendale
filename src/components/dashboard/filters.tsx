@@ -116,7 +116,7 @@ export function Filters({
           Ricarica Dati
         </Button>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
         {/* Date Range Presets */}
         <div>
           <label className="block text-sm font-medium text-black mb-2">Intervalli Predefiniti</label>
@@ -165,29 +165,26 @@ export function Filters({
           </div>
         </div>
 
-        {/* Multi-select filters */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Filtri multi-selezione in layout verticale */}
+        <div className="flex flex-col space-y-4">
           <MultiSelectFilter
             label="Collaboratori"
             options={availableCollaborators}
             selected={filters.collaborators || []}
             onChange={handleCollaboratorsChange}
           />
-
           <MultiSelectFilter
             label="Reparti"
             options={availableDepartments}
             selected={filters.departments || []}
             onChange={handleDepartmentsChange}
           />
-
           <MultiSelectFilter
             label="Macro Attività"
             options={availableMacroActivities}
             selected={filters.macroActivities || []}
             onChange={handleMacroActivitiesChange}
           />
-
           <MultiSelectFilter
             label="Clienti"
             options={availableClients}

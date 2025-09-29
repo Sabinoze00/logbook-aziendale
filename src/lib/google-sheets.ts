@@ -71,99 +71,52 @@ function processLogbookData(rawData: string[][]): LogbookEntry[] {
   const [headers, ...rows] = rawData
 
   return rows
-    .filter(row => row.some(cell => cell && cell.trim())) // Filter empty rows
     .map(row => {
       const entry: Partial<LogbookEntry> = {}
+      const rowData = headers.reduce((obj, header, index) => {
+        obj[header.toLowerCase()] = row[index] || ''
+        return obj
+      }, {} as Record<string, string>)
 
-      headers.forEach((header, index) => {
-        const value = row[index] || ''
-        switch (header.toLowerCase()) {
-          case 'nome':
-            entry.nome = value
-            break
-          case 'data':
-            entry.data = parseDate(value)
-            // Debug log per Jean
-            if (value && entry.nome === 'Jean') {
-              console.log(`[DEBUG] Jean data parsing: "${value}" -> ${entry.data} -> isValid: ${!isNaN(entry.data.getTime())}`)
-            }
-            break
-          case 'mese':
-            entry.mese = value
-            break
-          case 'giorno':
-            entry.giorno = value
-            break
-          case 'reparto1':
-          case 'reparto':
-            entry.reparto1 = value
-            break
-          case 'macro attività':
-            entry.macroAttivita = value
-            break
-          case 'micro attività':
-            entry.microAttivita = value
-            break
-          case 'cliente':
-            entry.cliente = value
-            break
-          case 'note':
-            entry.note = value
-            break
-          case 'minuti impiegati':
-            entry.minutiImpiegati = parseInt(value) || 0
-            break
-        }
-      })
+      entry.nome = rowData['nome']
+      entry.mese = rowData['mese']
+      entry.giorno = rowData['giorno']
+      entry.reparto1 = rowData['reparto1'] || rowData['reparto']
+      entry.macroAttivita = rowData['macro attività']
+      entry.microAttivita = rowData['micro attività']
+      entry.cliente = rowData['cliente']
+      entry.note = rowData['note']
+      entry.minutiImpiegati = parseInt(rowData['minuti impiegati']) || 0
 
-      return entry as LogbookEntry
-    })
-    .filter(entry => {
-      const isValid = entry.data && !isNaN(entry.data.getTime())
-      // Debug log per vedere cosa viene filtrato
-      if (!isValid && entry.nome === 'Jean') {
-        console.log(`[DEBUG] Jean entry filtered out:`, entry)
+      const parsedDate = parseDate(rowData['data'])
+      if (parsedDate) {
+        entry.data = parsedDate
+        return entry as LogbookEntry
       }
-      return isValid
-    }) // Filter invalid dates
+      return null
+    })
+    .filter((entry): entry is LogbookEntry => entry !== null) // Filtra solo le voci con date valide
 }
 
-function parseDate(dateStr: string): Date {
-  if (!dateStr) return new Date('')
+function parseDate(dateStr: string): Date | null {
+  if (!dateStr || !dateStr.trim()) return null
 
-  // Try DD/MM/YYYY format first
-  const ddmmyyyy = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/)
-  if (ddmmyyyy) {
-    const [, day, month, year] = ddmmyyyy
-    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
+  // Prova il formato DD/MM/YYYY prima
+  const match = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/)
+  if (match) {
+    const [, day, month, year] = match
+    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
+    // Ulteriore controllo per date come 31/02/YYYY
+    if (date.getDate() === parseInt(day)) return date
   }
 
-  // Try other formats
-  const formats = [
-    /^(\d{4})-(\d{1,2})-(\d{1,2})$/, // YYYY-MM-DD
-    /^(\d{1,2})-(\d{1,2})-(\d{4})$/, // DD-MM-YYYY
-    /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/, // MM/DD/YYYY
-    /^(\d{4})\/(\d{1,2})\/(\d{1,2})$/, // YYYY/MM/DD
-  ]
-
-  for (const format of formats) {
-    const match = dateStr.match(format)
-    if (match) {
-      const [, p1, p2, p3] = match
-      // Assume YYYY-MM-DD or YYYY/MM/DD format
-      if (format.source.startsWith('(\\d{4})')) {
-        return new Date(parseInt(p1), parseInt(p2) - 1, parseInt(p3))
-      }
-      // Assume DD-MM-YYYY format
-      else {
-        return new Date(parseInt(p3), parseInt(p2) - 1, parseInt(p1))
-      }
-    }
+  // Prova altri formati comuni
+  const parsedDate = new Date(dateStr)
+  if (!isNaN(parsedDate.getTime())) {
+      return parsedDate
   }
 
-  // Se nessun formato corrisponde o la stringa è vuota, restituisce una data non valida.
-  // Questa verrà poi scartata dalla funzione processLogbookData.
-  return new Date('')
+  return null // Ritorna null se nessun formato è valido
 }
 
 function processClientData(rawData: string[][]): ClientData[] {

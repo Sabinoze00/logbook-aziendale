@@ -101,7 +101,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
               <MetricsCards kpis={kpis} isLoading={isLoading} />
             </div>
 
-            {/* Charts */}
+            {/* Layout a griglia per i grafici - sempre 2 per riga */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
               <HoursByCollaboratorChart
                 data={hoursByCollaborator}
@@ -115,17 +115,12 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
               />
             </div>
 
-            {/* Macro Activity Chart */}
-            <div>
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
               <HoursByMacroActivityChart
                 data={hoursByMacroActivity}
                 isLoading={isLoading}
                 onPieClick={(macroActivity) => handleDrillDown('macroActivities', macroActivity)}
               />
-            </div>
-
-            {/* Micro Activity Chart */}
-            <div>
               <HoursByMicroActivityChart data={hoursByMicroActivity} isLoading={isLoading} />
             </div>
 

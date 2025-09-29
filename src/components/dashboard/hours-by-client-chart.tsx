@@ -82,11 +82,11 @@ export function HoursByClientChart({ data, isLoading, onPieClick }: HoursByClien
     ]
   })()
 
-  const formatTooltip = (value: number, name: string) => {
-    if (name === 'ore') {
-      return [`${value.toFixed(1)} ore`, 'Ore Lavorate']
-    }
-    return [value, name]
+  const totalHours = data.reduce((sum, item) => sum + item.ore, 0)
+
+  const formatTooltip = (value: number) => {
+    const percentage = totalHours > 0 ? ((value / totalHours) * 100).toFixed(1) : 0
+    return `${value.toFixed(1)} ore (${percentage}%)`
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
