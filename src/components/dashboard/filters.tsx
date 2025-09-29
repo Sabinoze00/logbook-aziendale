@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useCallback, memo } from 'react'
+import { useState, useCallback, memo, Fragment } from 'react'
 import { FilterOptions } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Calendar, RefreshCw, Search, ChevronDown } from 'lucide-react'
-import { useClickOutside } from '@/hooks/use-click-outside'
+import { Calendar, RefreshCw, Check, ChevronsUpDown } from 'lucide-react'
+import { Listbox, Transition } from '@headlessui/react'
 
 interface FiltersProps {
   filters: FilterOptions
@@ -42,92 +42,68 @@ export function Filters({
     })
   }, [filters, onFiltersChange])
 
-  // Memoized callbacks for each filter to prevent unnecessary re-renders
-  const handleCollaboratorsChange = useCallback((values: string[]) => {
-    handleMultiSelectChange('collaborators', values)
-  }, [handleMultiSelectChange])
+  const handleCollaboratorsChange = useCallback((values: string[]) => handleMultiSelectChange('collaborators', values), [handleMultiSelectChange])
+  const handleDepartmentsChange = useCallback((values: string[]) => handleMultiSelectChange('departments', values), [handleMultiSelectChange])
+  const handleMacroActivitiesChange = useCallback((values: string[]) => handleMultiSelectChange('macroActivities', values), [handleMultiSelectChange])
+  const handleClientsChange = useCallback((values: string[]) => handleMultiSelectChange('clients', values), [handleMultiSelectChange])
 
-  const handleDepartmentsChange = useCallback((values: string[]) => {
-    handleMultiSelectChange('departments', values)
-  }, [handleMultiSelectChange])
-
-  const handleMacroActivitiesChange = useCallback((values: string[]) => {
-    handleMultiSelectChange('macroActivities', values)
-  }, [handleMultiSelectChange])
-
-  const handleClientsChange = useCallback((values: string[]) => {
-    handleMultiSelectChange('clients', values)
-  }, [handleMultiSelectChange])
-
-  const formatDateForInput = (date: Date) => {
+  const formatDateForInput = (date: Date | undefined) => {
+    if (!date || isNaN(date.getTime())) return ''
     return date.toISOString().split('T')[0]
   }
 
-  // Preset date ranges
   const applyPresetRange = (preset: string) => {
     const today = new Date()
-    const startDate = new Date()
+    let startDate = new Date()
 
     switch (preset) {
-      case 'today':
-        onFiltersChange({ ...filters, startDate: today, endDate: today })
+      case 'oggi':
+        startDate = new Date()
         break
-      case 'last7days':
+      case 'ultimi7giorni':
         startDate.setDate(today.getDate() - 7)
-        onFiltersChange({ ...filters, startDate, endDate: today })
         break
-      case 'last30days':
+      case 'ultimi30giorni':
         startDate.setDate(today.getDate() - 30)
-        onFiltersChange({ ...filters, startDate, endDate: today })
         break
-      case 'thisMonth':
-        startDate.setDate(1)
-        onFiltersChange({ ...filters, startDate, endDate: today })
+      case 'questomese':
+        startDate = new Date(today.getFullYear(), today.getMonth(), 1)
         break
-      case 'lastMonth':
-        const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1)
+      case 'mesescorso':
+        startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1)
         const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0)
-        onFiltersChange({ ...filters, startDate: lastMonth, endDate: lastMonthEnd })
-        break
-      case 'thisYear':
-        const yearStart = new Date(today.getFullYear(), 0, 1)
-        onFiltersChange({ ...filters, startDate: yearStart, endDate: today })
+        onFiltersChange({ ...filters, startDate, endDate: lastMonthEnd })
+        return
+      case 'questanno':
+        startDate = new Date(today.getFullYear(), 0, 1)
         break
     }
+    onFiltersChange({ ...filters, startDate, endDate: today })
   }
 
   return (
-    <Card className="mb-8 shadow-lg hover:shadow-xl transition-shadow duration-300 border-0 bg-gradient-to-br from-white to-gray-50">
-      <CardHeader className="flex flex-row items-center justify-between bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
-        <CardTitle className="flex items-center gap-3 text-white">
-          <div className="p-2 bg-white/20 rounded-lg">
-            <Calendar className="h-5 w-5" />
-          </div>
-          <span className="text-xl font-bold">Filtri di Ricerca</span>
+    <Card className="mb-6">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="flex items-center gap-2">
+          <Calendar className="h-5 w-5" />
+          Filtri
         </CardTitle>
-        <Button
-          onClick={onRefresh}
-          disabled={isLoading}
-          size="sm"
-          variant="outline"
-          className="border-white/20 text-white hover:bg-white/10 hover:text-white"
-        >
+        <Button onClick={onRefresh} disabled={isLoading} size="sm" variant="outline">
           <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-          Ricarica Dati
+          Ricarica
         </Button>
       </CardHeader>
-      <CardContent className="space-y-6 pb-24">
-        {/* Date Range Presets */}
+      <CardContent className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-black mb-2">Intervalli Predefiniti</label>
+          <label className="block text-sm font-medium mb-2">Intervalli Predefiniti</label>
           <div className="flex flex-wrap gap-2">
             {[
-              { key: 'today', label: 'Oggi' },
-              { key: 'last7days', label: 'Ultimi 7 giorni' },
-              { key: 'last30days', label: 'Ultimi 30 giorni' },
-              { key: 'thisMonth', label: 'Questo mese' },
-              { key: 'lastMonth', label: 'Mese scorso' },
-              { key: 'thisYear', label: 'Quest\'anno' }
+              { key: 'oggi', label: 'Oggi' },
+              { key: 'ultimi7giorni', label: 'Ultimi 7 giorni' },
+              { key: 'ultimi30giorni', label: 'Ultimi 30 giorni' },
+              { key: 'questomese', label: 'Questo mese' },
+              { key: 'mesescorso', label: 'Mese scorso' },
+              { key: 'questanno', label: 'Quest\'anno' }
             ].map(preset => (
               <Button
                 key={preset.key}
@@ -142,30 +118,26 @@ export function Filters({
             ))}
           </div>
         </div>
-
-        {/* Date Range */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Data Inizio</label>
+            <label className="block text-sm font-medium mb-2">Data Inizio</label>
             <input
               type="date"
               value={formatDateForInput(filters.startDate)}
               onChange={(e) => handleDateChange('startDate', e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/30 focus:border-blue-500 text-gray-800 shadow-sm hover:shadow-md transition-all duration-200 font-medium"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Data Fine</label>
+            <label className="block text-sm font-medium mb-2">Data Fine</label>
             <input
               type="date"
               value={formatDateForInput(filters.endDate)}
               onChange={(e) => handleDateChange('endDate', e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/30 focus:border-blue-500 text-gray-800 shadow-sm hover:shadow-md transition-all duration-200 font-medium"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
             />
           </div>
         </div>
-
-        {/* Filtri multi-selezione in layout verticale */}
         <div className="flex flex-col space-y-4">
           <MultiSelectFilter
             label="Collaboratori"
@@ -205,114 +177,88 @@ interface MultiSelectFilterProps {
 }
 
 const MultiSelectFilter = memo(function MultiSelectFilter({ label, options, selected, onChange }: MultiSelectFilterProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [searchTerm, setSearchTerm] = useState('')
+  const [query, setQuery] = useState('')
 
-  const dropdownRef = useClickOutside<HTMLDivElement>(() => {
-    setIsOpen(false)
-    setSearchTerm('')
-  })
+  const filteredOptions = query === ''
+    ? options
+    : options.filter(option => option.toLowerCase().includes(query.toLowerCase()))
 
-  const filteredOptions = options.filter(option =>
-    option.toLowerCase().includes(searchTerm.toLowerCase())
-  )
-
-  const handleToggle = (option: string) => {
-    if (selected.includes(option)) {
-      onChange(selected.filter(item => item !== option))
-    } else {
-      onChange([...selected, option])
-    }
-  }
-
-  const handleSelectAll = () => {
-    onChange(filteredOptions)
-  }
-
-  const handleDeselectAll = () => {
-    onChange([])
-  }
+  const handleSelectAll = () => onChange(filteredOptions)
+  const handleDeselectAll = () => onChange([])
 
   return (
-    <div className="relative" ref={dropdownRef}>
-      <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
-      <div className="relative">
-        <button
-          type="button"
-          onClick={() => setIsOpen(!isOpen)}
-          className="w-full px-4 py-3 text-left border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/30 focus:border-blue-500 bg-white text-black shadow-sm hover:shadow-md transition-all duration-200 font-medium"
-        >
-          <div className="flex items-center justify-between">
-            <span>
-              {selected.length > 0
-                ? `${selected.length} selezionati`
-                : `Seleziona ${label.toLowerCase()}`
-              }
+    <div>
+      <label className="block text-sm font-medium mb-2 text-black">{label}</label>
+      <Listbox value={selected} onChange={onChange} multiple>
+        <div className="relative">
+          <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left border border-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 sm:text-sm">
+            <span className="block truncate text-black">
+              {selected.length > 0 ? `${selected.length} selezionati` : `Seleziona ${label.toLowerCase()}`}
             </span>
-            <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
-          </div>
-        </button>
-
-        {isOpen && (
-          <div className="absolute z-20 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-64 overflow-hidden">
-            {/* Search Box */}
-            <div className="p-3 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+              <ChevronsUpDown className="h-5 w-5 text-gray-400" aria-hidden="true" />
+            </span>
+          </Listbox.Button>
+          <Transition
+            as={Fragment}
+            leave="transition ease-in duration-100"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+              <div className="p-2">
                 <input
                   type="text"
                   placeholder={`Cerca ${label.toLowerCase()}...`}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 text-sm"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  className="w-full px-2 py-1 border border-gray-300 rounded-md text-black"
                 />
-              </div>
-            </div>
-
-            {/* Select All/Deselect All buttons */}
-            <div className="px-3 py-2 border-b border-gray-100 bg-gray-50 flex gap-2">
-              <button
-                type="button"
-                onClick={handleSelectAll}
-                className="text-xs px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 font-medium shadow-sm"
-              >
-                Seleziona {filteredOptions.length > 0 ? `Filtrati (${filteredOptions.length})` : 'Tutti'}
-              </button>
-              <button
-                type="button"
-                onClick={handleDeselectAll}
-                className="text-xs px-3 py-1 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-lg hover:from-gray-200 hover:to-gray-300 transition-all duration-200 font-medium"
-              >
-                Deseleziona Tutti
-              </button>
-            </div>
-
-            {/* Options List */}
-            <div className="max-h-40 overflow-y-auto">
-              {filteredOptions.length > 0 ? (
-                filteredOptions.map(option => (
-                  <div key={option} className="px-3 py-2 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-150">
-                    <label className="flex items-center cursor-pointer text-black">
-                      <input
-                        type="checkbox"
-                        checked={selected.includes(option)}
-                        onChange={() => handleToggle(option)}
-                        className="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                      />
-                      <span className="text-sm font-medium">{option}</span>
-                    </label>
-                  </div>
-                ))
-              ) : (
-                <div className="px-3 py-4 text-center text-gray-500 text-sm">
-                  <Search className="h-5 w-5 mx-auto mb-2 opacity-50" />
-                  Nessun risultato trovato per &quot;{searchTerm}&quot;
+                <div className="flex gap-2 mt-2">
+                  <button
+                    type="button"
+                    onClick={handleSelectAll}
+                    className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                  >
+                    {`Seleziona Filtrati (${filteredOptions.length})`}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDeselectAll}
+                    className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                  >
+                    Deseleziona Tutti
+                  </button>
                 </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
+              </div>
+              {filteredOptions.map((option, optionIdx) => (
+                <Listbox.Option
+                  key={optionIdx}
+                  className={({ active }) =>
+                    `relative cursor-default select-none py-2 pl-10 pr-4 ${
+                      active ? 'bg-blue-100 text-blue-900' : 'text-gray-900'
+                    }`
+                  }
+                  value={option}
+                >
+                  {({ selected }) => (
+                    <>
+                      <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
+                        {option}
+                      </span>
+                      {selected ? (
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-600">
+                          <Check className="h-5 w-5" aria-hidden="true" />
+                        </span>
+                      ) : null}
+                    </>
+                  )}
+                </Listbox.Option>
+              ))}
+            </Listbox.Options>
+          </Transition>
+        </div>
+      </Listbox>
     </div>
   )
 })
