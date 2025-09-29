@@ -147,7 +147,7 @@ export function Filters({
               type="date"
               value={formatDateForInput(filters.startDate)}
               onChange={(e) => handleDateChange('startDate', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
             />
           </div>
           <div>
@@ -156,7 +156,7 @@ export function Filters({
               type="date"
               value={formatDateForInput(filters.endDate)}
               onChange={(e) => handleDateChange('endDate', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
             />
           </div>
         </div>
@@ -229,7 +229,7 @@ const MultiSelectFilter = memo(function MultiSelectFilter({ label, options, sele
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full px-3 py-2 text-left border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          className="w-full px-3 py-2 text-left border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
         >
           {selected.length > 0
             ? `${selected.length} selezionati`
@@ -258,7 +258,7 @@ const MultiSelectFilter = memo(function MultiSelectFilter({ label, options, sele
             </div>
             {options.map(option => (
               <div key={option} className="px-3 py-2 hover:bg-gray-100">
-                <label className="flex items-center cursor-pointer">
+                <label className="flex items-center cursor-pointer text-black">
                   <input
                     type="checkbox"
                     checked={selected.includes(option)}
