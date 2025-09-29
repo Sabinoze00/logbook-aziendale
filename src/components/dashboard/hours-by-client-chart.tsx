@@ -117,8 +117,8 @@ export function HoursByClientChart({ data, isLoading, onPieClick }: HoursByClien
               innerRadius={40}
               fill="#8884d8"
               dataKey="ore"
-              onClick={(payload) => {
-                if (onPieClick && payload) {
+              onClick={(payload: any) => {
+                if (onPieClick && payload && payload.cliente) {
                   onPieClick(payload.cliente)
                 }
               }}
