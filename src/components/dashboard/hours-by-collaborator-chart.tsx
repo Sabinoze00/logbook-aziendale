@@ -74,6 +74,7 @@ export function HoursByCollaboratorChart({ data, isLoading, onBarClick }: HoursB
             <Bar
               dataKey="ore"
               fill="#8884d8"
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               onClick={(payload: any) => {
                 if (onBarClick && payload && payload.nome) {
                   onBarClick(payload.nome)
