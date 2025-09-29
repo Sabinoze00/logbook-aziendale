@@ -10,7 +10,8 @@ import {
   getCollaboratorSummary,
   aggregateHoursByCollaborator,
   aggregateHoursByClient,
-  aggregateHoursByMacroActivity
+  aggregateHoursByMacroActivity,
+  aggregateHoursByMicroActivity
 } from '@/lib/data-processor'
 
 interface UseDashboardProps {
@@ -53,22 +54,54 @@ export function useDashboard({ initialData }: UseDashboardProps) {
     }
   }, [processedLogbook])
 
-  // Get unique values for filter options
+  // Get unique values for filter options - dynamic filtering (cascading filters)
   const availableCollaborators = useMemo(() => {
-    return getUniqueValues(processedLogbook, 'nome')
-  }, [processedLogbook])
+    // Crea un set di filtri temporaneo senza il filtro dei collaboratori
+    const partialFilters = { ...filters }
+    delete (partialFilters as Partial<FilterOptions>).collaborators
+
+    // Filtra i dati usando solo gli altri filtri
+    const partiallyFilteredData = filterLogbookData(processedLogbook, partialFilters)
+
+    // Estrai i valori unici dal risultato parzialmente filtrato
+    return getUniqueValues(partiallyFilteredData, 'nome')
+  }, [processedLogbook, filters])
 
   const availableDepartments = useMemo(() => {
-    return getUniqueValues(processedLogbook, 'reparto1')
-  }, [processedLogbook])
+    // Crea un set di filtri temporaneo senza il filtro dei dipartimenti
+    const partialFilters = { ...filters }
+    delete (partialFilters as Partial<FilterOptions>).departments
+
+    // Filtra i dati usando solo gli altri filtri
+    const partiallyFilteredData = filterLogbookData(processedLogbook, partialFilters)
+
+    // Estrai i valori unici dal risultato parzialmente filtrato
+    return getUniqueValues(partiallyFilteredData, 'reparto1')
+  }, [processedLogbook, filters])
 
   const availableMacroActivities = useMemo(() => {
-    return getUniqueValues(processedLogbook, 'macroAttivita')
-  }, [processedLogbook])
+    // Crea un set di filtri temporaneo senza il filtro delle macro attività
+    const partialFilters = { ...filters }
+    delete (partialFilters as Partial<FilterOptions>).macroActivities
+
+    // Filtra i dati usando solo gli altri filtri
+    const partiallyFilteredData = filterLogbookData(processedLogbook, partialFilters)
+
+    // Estrai i valori unici dal risultato parzialmente filtrato
+    return getUniqueValues(partiallyFilteredData, 'macroAttivita')
+  }, [processedLogbook, filters])
 
   const availableClients = useMemo(() => {
-    return getUniqueValues(processedLogbook, 'cliente')
-  }, [processedLogbook])
+    // Crea un set di filtri temporaneo senza il filtro dei clienti
+    const partialFilters = { ...filters }
+    delete (partialFilters as Partial<FilterOptions>).clients
+
+    // Filtra i dati usando solo gli altri filtri
+    const partiallyFilteredData = filterLogbookData(processedLogbook, partialFilters)
+
+    // Estrai i valori unici dal risultato parzialmente filtrato
+    return getUniqueValues(partiallyFilteredData, 'cliente')
+  }, [processedLogbook, filters])
 
   // Filter data based on current filters
   const filteredLogbook = useMemo(() => {
@@ -100,6 +133,10 @@ export function useDashboard({ initialData }: UseDashboardProps) {
     return aggregateHoursByMacroActivity(filteredLogbook)
   }, [filteredLogbook])
 
+  const hoursByMicroActivity = useMemo(() => {
+    return aggregateHoursByMicroActivity(filteredLogbook)
+  }, [filteredLogbook])
+
   // Get collaborator summary
   const collaboratorSummary = useMemo(() => {
     return getCollaboratorSummary(
@@ -125,7 +162,22 @@ export function useDashboard({ initialData }: UseDashboardProps) {
       }
 
       const newData = await response.json()
-      setData(newData)
+
+      // **Aggiungi questo controllo di validazione**
+      if (newData && newData.logbook && newData.clients && newData.compensi && newData.mapping) {
+        // Verifica anche che logbook sia un array
+        if (Array.isArray(newData.logbook)) {
+          setData(newData)
+        } else {
+          console.error("Il campo 'logbook' non è un array:", newData.logbook)
+          throw new Error('I dati del logbook non sono nel formato corretto (array atteso).')
+        }
+      } else {
+        // Se i dati non sono validi, imposta uno stato di errore e non aggiornare i dati
+        console.error("Dati ricevuti dall'API non validi:", newData)
+        throw new Error('I dati ricevuti non sono nel formato corretto.')
+      }
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
@@ -155,6 +207,7 @@ export function useDashboard({ initialData }: UseDashboardProps) {
     hoursByCollaborator,
     hoursByClient,
     hoursByMacroActivity,
+    hoursByMicroActivity,
     collaboratorSummary,
 
     // Filters

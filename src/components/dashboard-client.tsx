@@ -7,6 +7,7 @@ import { Filters } from '@/components/dashboard/filters'
 import { HoursByCollaboratorChart } from '@/components/dashboard/hours-by-collaborator-chart'
 import { HoursByClientChart } from '@/components/dashboard/hours-by-client-chart'
 import { HoursByMacroActivityChart } from '@/components/dashboard/hours-by-macro-activity-chart'
+import { HoursByMicroActivityChart } from '@/components/dashboard/hours-by-micro-activity-chart'
 import { CollaboratorSummaryTable } from '@/components/dashboard/collaborator-summary-table'
 
 interface DashboardClientProps {
@@ -21,6 +22,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
     hoursByCollaborator,
     hoursByClient,
     hoursByMacroActivity,
+    hoursByMicroActivity,
     collaboratorSummary,
     availableCollaborators,
     availableDepartments,
@@ -71,53 +73,71 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
       {/* Main Content */}
       <main className="px-8 py-8">
-        <div className="space-y-8">
-          {/* Filters */}
-          <Filters
-            filters={filters}
-            onFiltersChange={setFilters}
-            availableCollaborators={availableCollaborators}
-            availableDepartments={availableDepartments}
-            availableMacroActivities={availableMacroActivities}
-            availableClients={availableClients}
-            onRefresh={refreshData}
-            isLoading={isLoading}
-          />
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
-          {/* Metrics Cards */}
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              Metriche Chiave del Periodo Selezionato
-            </h2>
-            <MetricsCards kpis={kpis} isLoading={isLoading} />
+          {/* Colonna Sinistra per i Filtri (Sticky) */}
+          <div className="lg:col-span-1">
+            <div className="lg:sticky lg:top-8">
+              <Filters
+                filters={filters}
+                onFiltersChange={setFilters}
+                availableCollaborators={availableCollaborators}
+                availableDepartments={availableDepartments}
+                availableMacroActivities={availableMacroActivities}
+                availableClients={availableClients}
+                onRefresh={refreshData}
+                isLoading={isLoading}
+              />
+            </div>
           </div>
 
-          {/* Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
-            <HoursByCollaboratorChart
-              data={hoursByCollaborator}
-              isLoading={isLoading}
-              onBarClick={(collaboratorName) => handleDrillDown('collaborators', collaboratorName)}
-            />
-            <HoursByClientChart
-              data={hoursByClient}
-              isLoading={isLoading}
-              onPieClick={(clientName) => handleDrillDown('clients', clientName)}
-            />
-            <HoursByMacroActivityChart
-              data={hoursByMacroActivity}
-              isLoading={isLoading}
-              onPieClick={(macroActivity) => handleDrillDown('macroActivities', macroActivity)}
-            />
+          {/* Colonna Destra per il Contenuto (Scrollabile) */}
+          <div className="lg:col-span-3 space-y-8">
+            {/* Metrics Cards */}
+            <div>
+              <h2 className="text-xl font-semibold text-black mb-4">
+                Metriche Chiave del Periodo Selezionato
+              </h2>
+              <MetricsCards kpis={kpis} isLoading={isLoading} />
+            </div>
+
+            {/* Charts */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+              <HoursByCollaboratorChart
+                data={hoursByCollaborator}
+                isLoading={isLoading}
+                onBarClick={(collaboratorName) => handleDrillDown('collaborators', collaboratorName)}
+              />
+              <HoursByClientChart
+                data={hoursByClient}
+                isLoading={isLoading}
+                onPieClick={(clientName) => handleDrillDown('clients', clientName)}
+              />
+            </div>
+
+            {/* Macro Activity Chart */}
+            <div>
+              <HoursByMacroActivityChart
+                data={hoursByMacroActivity}
+                isLoading={isLoading}
+                onPieClick={(macroActivity) => handleDrillDown('macroActivities', macroActivity)}
+              />
+            </div>
+
+            {/* Micro Activity Chart */}
+            <div>
+              <HoursByMicroActivityChart data={hoursByMicroActivity} isLoading={isLoading} />
+            </div>
+
+            {/* Collaborator Summary Table */}
+            <div>
+              <h2 className="text-xl font-semibold text-black mb-4">
+                Riepilogo Collaboratori (basato sui filtri applicati)
+              </h2>
+              <CollaboratorSummaryTable data={collaboratorSummary} isLoading={isLoading} />
+            </div>
           </div>
 
-          {/* Collaborator Summary Table */}
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              Riepilogo Collaboratori (basato sui filtri applicati)
-            </h2>
-            <CollaboratorSummaryTable data={collaboratorSummary} isLoading={isLoading} />
-          </div>
         </div>
       </main>
     </div>

@@ -78,6 +78,21 @@ export function aggregateHoursByMacroActivity(entries: LogbookEntry[]) {
     .sort((a, b) => b.ore - a.ore)
 }
 
+export function aggregateHoursByMicroActivity(entries: LogbookEntry[]) {
+  const aggregated = entries.reduce((acc, entry) => {
+    const hours = entry.minutiImpiegati / 60
+    // Aggiungi questa condizione per escludere le attività non specificate
+    if (entry.microAttivita && entry.microAttivita.trim() !== '') {
+      acc[entry.microAttivita] = (acc[entry.microAttivita] || 0) + hours
+    }
+    return acc
+  }, {} as Record<string, number>)
+
+  return Object.entries(aggregated)
+    .map(([microAttivita, ore]) => ({ microAttivita, ore }))
+    .sort((a, b) => b.ore - a.ore)
+}
+
 export function calculateKPIs(
   filteredEntries: LogbookEntry[],
   allEntries: LogbookEntry[],
