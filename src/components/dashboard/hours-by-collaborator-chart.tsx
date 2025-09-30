@@ -68,7 +68,7 @@ export function HoursByCollaboratorChart({ data, isLoading, onBarClick }: HoursB
             }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis type="number" />
+            <XAxis type="number" domain={[0, 'auto']} />
             <YAxis dataKey="nome" type="category" width={100} />
             <Tooltip formatter={formatTooltip} />
             <Bar

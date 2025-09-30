@@ -124,16 +124,16 @@ export function HoursByMacroActivityChart({ data, isLoading, onPieClick }: Hours
         </CardTitle>
       </CardHeader>
       <CardContent className="p-6">
-        <ResponsiveContainer width="100%" height={400}>
+        <ResponsiveContainer width="100%" height={550}>
           <PieChart>
             <Pie
               data={preparedData}
               cx="50%"
-              cy="50%"
+              cy="45%"
               labelLine={false}
               label={renderCustomizedLabel}
-              outerRadius={120}
-              innerRadius={50}
+              outerRadius={160}
+              innerRadius={70}
               fill="#8884d8"
               dataKey="ore"
               nameKey="macroAttivita"

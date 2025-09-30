@@ -264,3 +264,46 @@ export function getCollaboratorSummary(
     }
   }).sort((a, b) => a.collaboratore.localeCompare(b.collaboratore))
 }
+
+export function getDepartmentSummary(
+  filteredEntries: LogbookEntry[],
+  allEntries: LogbookEntry[],
+  filters: FilterOptions
+) {
+  const departments = Array.from(new Set(filteredEntries.map(entry => entry.reparto1)))
+
+  return departments.map(departmentName => {
+    // Filtered hours for this department
+    const departmentFilteredEntries = filteredEntries.filter(entry => entry.reparto1 === departmentName)
+    const filteredHours = departmentFilteredEntries.reduce((sum, entry) => sum + entry.minutiImpiegati, 0) / 60
+
+    // Unique clients for this department (from filtered data)
+    const uniqueClients = new Set(departmentFilteredEntries.map(entry => entry.cliente))
+    const clientsCount = uniqueClients.size
+
+    // Unique collaborators for this department (from filtered data)
+    const uniqueCollaborators = new Set(departmentFilteredEntries.map(entry => entry.nome))
+    const collaboratorsCount = uniqueCollaborators.size
+
+    // Total hours for this department in the period (not just filtered)
+    const totalPeriodEntries = allEntries.filter(entry =>
+      entry.reparto1 === departmentName &&
+      entry.data >= filters.startDate &&
+      entry.data <= filters.endDate
+    )
+    const totalPeriodHours = totalPeriodEntries.reduce((sum, entry) => sum + entry.minutiImpiegati, 0) / 60
+
+    // Unique macro activities for this department
+    const uniqueMacroActivities = new Set(departmentFilteredEntries.map(entry => entry.macroAttivita))
+    const macroActivitiesCount = uniqueMacroActivities.size
+
+    return {
+      reparto: departmentName,
+      oreTotaliPeriodo: totalPeriodHours,
+      oreFiltrate: filteredHours,
+      clientiSeguiti: clientsCount,
+      collaboratori: collaboratorsCount,
+      macroAttivita: macroActivitiesCount
+    }
+  }).sort((a, b) => a.reparto.localeCompare(b.reparto))
+}

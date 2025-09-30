@@ -8,6 +8,7 @@ import {
   calculateKPIs,
   getUniqueValues,
   getCollaboratorSummary,
+  getDepartmentSummary,
   aggregateHoursByCollaborator,
   aggregateHoursByClient,
   aggregateHoursByMacroActivity,
@@ -176,6 +177,15 @@ export function useDashboard({ initialData }: UseDashboardProps) {
     )
   }, [filteredLogbook, processedLogbook, data.compensi, filters])
 
+  // Get department summary
+  const departmentSummary = useMemo(() => {
+    return getDepartmentSummary(
+      filteredLogbook,
+      processedLogbook,
+      filters
+    )
+  }, [filteredLogbook, processedLogbook, filters])
+
   // Refresh data function
   const refreshData = async () => {
     setIsLoading(true)
@@ -211,16 +221,21 @@ export function useDashboard({ initialData }: UseDashboardProps) {
 
   // Drill-down functionality for interactive charts
   const handleDrillDown = (filterKey: 'collaborators' | 'clients' | 'macroActivities', value: string) => {
-    // Quando si fa un drill-down, si imposta un solo valore per quel filtro
-    // e si resettano gli altri filtri di tipo multi-selezione per evitare conflitti.
-    setFilters(prevFilters => ({
-      ...prevFilters,
-      collaborators: filterKey === 'collaborators' ? [value] : undefined,
-      clients: filterKey === 'clients' ? [value] : undefined,
-      macroActivities: filterKey === 'macroActivities' ? [value] : undefined,
-      // Opzionale: resetta altri filtri per una visione più pulita
-      departments: undefined,
-    }))
+    // Accumula i filtri invece di resettarli
+    setFilters(prevFilters => {
+      const currentValues = prevFilters[filterKey] || []
+
+      // Se il valore è già presente, lo rimuove (toggle)
+      // Altrimenti lo aggiunge alla lista
+      const newValues = currentValues.includes(value)
+        ? currentValues.filter(v => v !== value)
+        : [...currentValues, value]
+
+      return {
+        ...prevFilters,
+        [filterKey]: newValues.length > 0 ? newValues : undefined
+      }
+    })
   }
 
   return {
@@ -233,6 +248,7 @@ export function useDashboard({ initialData }: UseDashboardProps) {
     hoursByMacroActivity,
     hoursByMicroActivity,
     collaboratorSummary,
+    departmentSummary,
 
     // Filters
     filters,
