@@ -177,7 +177,12 @@ export function CollaboratorSummaryTable({ data, isLoading }: CollaboratorSummar
             </thead>
             <tbody>
               {sortedData.map((row, index) => (
-                <tr key={index} className="border-b hover:bg-gray-50">
+                <tr
+                  key={index}
+                  className={`border-b transition-colors duration-150 hover:bg-blue-50 hover:shadow-sm ${
+                    index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                  }`}
+                >
                   <td className="py-3 px-4 font-medium text-black">{row.collaboratore}</td>
                   <td className="py-3 px-4 text-right text-black">{formatCurrency(row.compensoTotale)}</td>
                   <td className="py-3 px-4 text-right text-black">{row.oreTotaliPeriodo.toFixed(1)} h</td>

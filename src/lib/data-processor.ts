@@ -1,11 +1,22 @@
 import { LogbookEntry, FilterOptions, KPIData, ClientData, CompensData, MappingData } from './types'
 import { extractMonthFromDate, convertEuToNumber } from './utils'
+import { normalizeNames } from './string-normalizer'
 
 export function processLogbookEntries(entries: LogbookEntry[]): LogbookEntry[] {
-  return entries.map(entry => ({
+  // Filter valid entries first
+  let processedEntries = entries.map(entry => ({
     ...entry,
     meseFormattato: entry.data ? extractMonthFromDate(entry.data) || undefined : undefined
   })).filter(entry => entry.data && !isNaN(entry.data.getTime()))
+
+  // Normalize names to group similar variants
+  processedEntries = normalizeNames(processedEntries, 'cliente', 85)
+  processedEntries = normalizeNames(processedEntries, 'nome', 85)
+  processedEntries = normalizeNames(processedEntries, 'reparto1', 85)
+  processedEntries = normalizeNames(processedEntries, 'macroAttivita', 85)
+  processedEntries = normalizeNames(processedEntries, 'microAttivita', 85)
+
+  return processedEntries
 }
 
 export function filterLogbookData(

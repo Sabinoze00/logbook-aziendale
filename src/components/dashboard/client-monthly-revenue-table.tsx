@@ -186,8 +186,15 @@ export function ClientMonthlyRevenueTable({ data, isLoading }: ClientMonthlyReve
             </thead>
             <tbody>
               {sortedData.map((row, index) => (
-                <tr key={index} className="border-b hover:bg-gray-50">
-                  <td className="py-3 px-4 font-medium text-black sticky left-0 bg-white">{row.cliente}</td>
+                <tr
+                  key={index}
+                  className={`border-b transition-colors duration-150 hover:bg-blue-50 hover:shadow-sm ${
+                    index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                  }`}
+                >
+                  <td className={`py-3 px-4 font-medium text-black sticky left-0 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} group-hover:bg-blue-50`}>
+                    {row.cliente}
+                  </td>
                   {allMonths.map(month => (
                     <td key={month} className="py-3 px-4 text-right text-black">
                       {formatCurrency(row.monthlyRevenue[month] || 0)}
