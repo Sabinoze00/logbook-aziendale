@@ -10,6 +10,7 @@ import {
   getCollaboratorSummary,
   getDepartmentSummary,
   getClientSummary,
+  getClientMonthlyRevenue,
   aggregateHoursByCollaborator,
   aggregateHoursByClient,
   aggregateHoursByMacroActivity,
@@ -202,6 +203,15 @@ export function useDashboard({ initialData }: UseDashboardProps) {
     )
   }, [filteredLogbook, processedLogbook, data.clients, data.compensi, data.mapping, filters])
 
+  // Get client monthly revenue
+  const clientMonthlyRevenue = useMemo(() => {
+    return getClientMonthlyRevenue(
+      filteredLogbook,
+      data.clients,
+      data.mapping
+    )
+  }, [filteredLogbook, data.clients, data.mapping])
+
   // Refresh data function
   const refreshData = async () => {
     setIsLoading(true)
@@ -266,6 +276,7 @@ export function useDashboard({ initialData }: UseDashboardProps) {
     collaboratorSummary,
     departmentSummary,
     clientSummary,
+    clientMonthlyRevenue,
 
     // Filters
     filters,

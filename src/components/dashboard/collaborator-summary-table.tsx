@@ -23,6 +23,21 @@ export function CollaboratorSummaryTable({ data, isLoading }: CollaboratorSummar
   const [sortKey, setSortKey] = useState<SortKey | null>(null)
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 
+  // Calculate totals
+  const totals = {
+    compensoTotale: data.reduce((sum, row) => sum + row.compensoTotale, 0),
+    oreTotaliPeriodo: data.reduce((sum, row) => sum + row.oreTotaliPeriodo, 0),
+    costoOrarioMedio: 0, // Will calculate after
+    oreFiltrate: data.reduce((sum, row) => sum + row.oreFiltrate, 0),
+    clientiSeguiti: data.reduce((sum, row) => sum + row.clientiSeguiti, 0)
+  }
+
+  // Calculate average hourly cost (excluding -1 values)
+  const validHourlyCosts = data.filter(row => row.costoOrarioEffettivo !== -1).map(row => row.costoOrarioEffettivo)
+  totals.costoOrarioMedio = validHourlyCosts.length > 0
+    ? validHourlyCosts.reduce((sum, val) => sum + val, 0) / validHourlyCosts.length
+    : 0
+
   // Sort data based on current sort settings
   const sortedData = [...data].sort((a, b) => {
     if (!sortKey) return 0
@@ -179,6 +194,15 @@ export function CollaboratorSummaryTable({ data, isLoading }: CollaboratorSummar
                   <td className="py-3 px-4 text-right text-black">{row.clientiSeguiti}</td>
                 </tr>
               ))}
+              {/* Totals Row */}
+              <tr className="border-t-2 border-gray-400 bg-gray-100 font-bold">
+                <td className="py-3 px-4 text-black">TOTALE / MEDIA</td>
+                <td className="py-3 px-4 text-right text-black">{formatCurrency(totals.compensoTotale)}</td>
+                <td className="py-3 px-4 text-right text-black">{totals.oreTotaliPeriodo.toFixed(1)} h</td>
+                <td className="py-3 px-4 text-right text-black">{formatCurrency(totals.costoOrarioMedio)} <span className="text-xs font-normal">(media)</span></td>
+                <td className="py-3 px-4 text-right text-black">{totals.oreFiltrate.toFixed(1)} h</td>
+                <td className="py-3 px-4 text-right text-black">{totals.clientiSeguiti}</td>
+              </tr>
             </tbody>
           </table>
         </div>

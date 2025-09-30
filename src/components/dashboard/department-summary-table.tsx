@@ -27,6 +27,22 @@ export function DepartmentSummaryTable({ data, isLoading }: DepartmentSummaryTab
   const [sortKey, setSortKey] = useState<SortKey | null>(null)
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 
+  // Calculate totals
+  const totals = {
+    oreTotaliPeriodo: data.reduce((sum, row) => sum + row.oreTotaliPeriodo, 0),
+    oreFiltrate: data.reduce((sum, row) => sum + row.oreFiltrate, 0),
+    clientiSeguiti: data.reduce((sum, row) => sum + row.clientiSeguiti, 0),
+    collaboratori: data.reduce((sum, row) => sum + row.collaboratori, 0),
+    macroAttivita: data.reduce((sum, row) => sum + row.macroAttivita, 0),
+    costoTotale: data.reduce((sum, row) => sum + row.costoTotale, 0),
+    fatturatoTotale: data.reduce((sum, row) => sum + row.fatturatoTotale, 0),
+    margine: 0,
+    marginePercentuale: 0
+  }
+
+  totals.margine = totals.fatturatoTotale - totals.costoTotale
+  totals.marginePercentuale = totals.fatturatoTotale > 0 ? (totals.margine / totals.fatturatoTotale) * 100 : 0
+
   // Sort data based on current sort settings
   const sortedData = [...data].sort((a, b) => {
     if (!sortKey) return 0
@@ -185,6 +201,23 @@ export function DepartmentSummaryTable({ data, isLoading }: DepartmentSummaryTab
                   </td>
                 </tr>
               ))}
+              {/* Totals Row */}
+              <tr className="border-t-2 border-gray-400 bg-gray-100 font-bold">
+                <td className="py-3 px-4 text-black">TOTALE</td>
+                <td className="py-3 px-4 text-right text-black">{totals.oreTotaliPeriodo.toFixed(1)} h</td>
+                <td className="py-3 px-4 text-right text-black">{totals.oreFiltrate.toFixed(1)} h</td>
+                <td className="py-3 px-4 text-right text-black">{totals.clientiSeguiti}</td>
+                <td className="py-3 px-4 text-right text-black">{totals.collaboratori}</td>
+                <td className="py-3 px-4 text-right text-black">{totals.macroAttivita}</td>
+                <td className="py-3 px-4 text-right text-black">{formatCurrency(totals.costoTotale)}</td>
+                <td className="py-3 px-4 text-right text-black">{formatCurrency(totals.fatturatoTotale)}</td>
+                <td className={`py-3 px-4 text-right font-medium ${totals.margine >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {formatCurrency(totals.margine)}
+                </td>
+                <td className={`py-3 px-4 text-right font-medium ${totals.marginePercentuale >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {totals.marginePercentuale.toFixed(1)}%
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>

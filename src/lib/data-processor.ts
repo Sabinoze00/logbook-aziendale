@@ -313,17 +313,39 @@ export function getDepartmentSummary(
     const uniqueMacroActivities = new Set(departmentFilteredEntries.map(entry => entry.macroAttivita))
     const macroActivitiesCount = uniqueMacroActivities.size
 
-    // Calculate costs for this department's collaborators
+    // Calculate costs based on actual hours worked for this department
     let totalCost = 0
 
     departmentCollaborators.forEach(collaboratorName => {
+      // Get compensation for this collaborator in selected months
       const collaboratorCompensi = compensi.find(c => c.collaboratore === collaboratorName)
+      let collaboratorTotalCompensation = 0
+
       if (collaboratorCompensi) {
         selectedMonths.forEach(month => {
           if (month && typeof collaboratorCompensi[month] === 'number') {
-            totalCost += collaboratorCompensi[month] as number
+            collaboratorTotalCompensation += collaboratorCompensi[month] as number
           }
         })
+      }
+
+      // Total hours for this collaborator in the period
+      const collaboratorPeriodEntries = allEntries.filter(entry =>
+        entry.nome === collaboratorName &&
+        entry.data >= filters.startDate &&
+        entry.data <= filters.endDate
+      )
+      const collaboratorTotalHours = collaboratorPeriodEntries.reduce((sum, entry) => sum + entry.minutiImpiegati, 0) / 60
+
+      // Hours worked by this collaborator for this department
+      const collaboratorDeptHours = departmentFilteredEntries
+        .filter(entry => entry.nome === collaboratorName)
+        .reduce((sum, entry) => sum + entry.minutiImpiegati, 0) / 60
+
+      // Calculate hourly cost and apply to actual hours worked
+      if (collaboratorTotalHours > 0) {
+        const hourlyCost = collaboratorTotalCompensation / collaboratorTotalHours
+        totalCost += hourlyCost * collaboratorDeptHours
       }
     })
 
@@ -404,17 +426,39 @@ export function getClientSummary(
     )
     const totalPeriodHours = totalPeriodEntries.reduce((sum, entry) => sum + entry.minutiImpiegati, 0) / 60
 
-    // Calculate costs for this client's collaborators
+    // Calculate costs based on actual hours worked for this client
     let totalCost = 0
 
     clientCollaborators.forEach(collaboratorName => {
+      // Get compensation for this collaborator in selected months
       const collaboratorCompensi = compensi.find(c => c.collaboratore === collaboratorName)
+      let collaboratorTotalCompensation = 0
+
       if (collaboratorCompensi) {
         selectedMonths.forEach(month => {
           if (month && typeof collaboratorCompensi[month] === 'number') {
-            totalCost += collaboratorCompensi[month] as number
+            collaboratorTotalCompensation += collaboratorCompensi[month] as number
           }
         })
+      }
+
+      // Total hours for this collaborator in the period
+      const collaboratorPeriodEntries = allEntries.filter(entry =>
+        entry.nome === collaboratorName &&
+        entry.data >= filters.startDate &&
+        entry.data <= filters.endDate
+      )
+      const collaboratorTotalHours = collaboratorPeriodEntries.reduce((sum, entry) => sum + entry.minutiImpiegati, 0) / 60
+
+      // Hours worked by this collaborator for this client
+      const collaboratorClientHours = clientFilteredEntries
+        .filter(entry => entry.nome === collaboratorName)
+        .reduce((sum, entry) => sum + entry.minutiImpiegati, 0) / 60
+
+      // Calculate hourly cost and apply to actual hours worked
+      if (collaboratorTotalHours > 0) {
+        const hourlyCost = collaboratorTotalCompensation / collaboratorTotalHours
+        totalCost += hourlyCost * collaboratorClientHours
       }
     })
 
@@ -447,6 +491,52 @@ export function getClientSummary(
       fatturatoTotale: totalRevenue,
       margine: margin,
       marginePercentuale: marginPercentage
+    }
+  }).sort((a, b) => a.cliente.localeCompare(b.cliente))
+}
+
+export function getClientMonthlyRevenue(
+  filteredEntries: LogbookEntry[],
+  clients: ClientData[],
+  mapping: MappingData[]
+) {
+  const clientNames = Array.from(new Set(filteredEntries.map(entry => entry.cliente)))
+
+  // Get all unique months from filtered data
+  const allMonths = Array.from(new Set(
+    filteredEntries
+      .map(entry => entry.meseFormattato)
+      .filter(Boolean) as string[]
+  )).sort()
+
+  // Client mapping
+  const clientMap = mapping.reduce((acc, m) => {
+    acc[m.clienteMap] = m.cliente
+    return acc
+  }, {} as Record<string, string>)
+
+  return clientNames.map(clientName => {
+    const mappedClientName = clientMap[clientName] || clientName
+    const clientData = clients.find(c => c.cliente === mappedClientName)
+
+    const monthlyData: Record<string, number> = {}
+    let totalRevenue = 0
+
+    allMonths.forEach(month => {
+      let revenue = 0
+      if (clientData && month && clientData[month]) {
+        revenue = typeof clientData[month] === 'string'
+          ? convertEuToNumber(clientData[month] as string)
+          : clientData[month] as number
+      }
+      monthlyData[month] = revenue
+      totalRevenue += revenue
+    })
+
+    return {
+      cliente: clientName,
+      monthlyRevenue: monthlyData,
+      totale: totalRevenue
     }
   }).sort((a, b) => a.cliente.localeCompare(b.cliente))
 }
