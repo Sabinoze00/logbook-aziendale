@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { formatCurrency } from '@/lib/utils'
-import { ChevronUp, ChevronDown, Download } from 'lucide-react'
+import { ChevronUp, ChevronDown, Download, TrendingUp, TrendingDown } from 'lucide-react'
 
 interface ClientMonthlyRevenueTableProps {
   data: Array<{
@@ -20,14 +20,25 @@ export function ClientMonthlyRevenueTable({ data, isLoading }: ClientMonthlyReve
   const [sortKey, setSortKey] = useState<SortKey>('cliente')
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
 
-  // Get all unique months across all clients
+  // Get all unique months across all clients sorted chronologically
   const allMonths = useMemo(() => {
     if (data.length === 0) return []
     const monthsSet = new Set<string>()
     data.forEach(row => {
       Object.keys(row.monthlyRevenue).forEach(month => monthsSet.add(month))
     })
-    return Array.from(monthsSet).sort()
+
+    // Italian month names in order
+    const monthOrder = [
+      'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
+      'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
+    ]
+
+    return Array.from(monthsSet).sort((a, b) => {
+      const indexA = monthOrder.indexOf(a)
+      const indexB = monthOrder.indexOf(b)
+      return indexA - indexB
+    })
   }, [data])
 
   // Calculate totals row
@@ -195,11 +206,40 @@ export function ClientMonthlyRevenueTable({ data, isLoading }: ClientMonthlyReve
                   <td className={`py-3 px-4 font-medium text-black sticky left-0 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} group-hover:bg-blue-50`}>
                     {row.cliente}
                   </td>
-                  {allMonths.map(month => (
-                    <td key={month} className="py-3 px-4 text-right text-black">
-                      {formatCurrency(row.monthlyRevenue[month] || 0)}
-                    </td>
-                  ))}
+                  {allMonths.map((month, monthIndex) => {
+                    const currentValue = row.monthlyRevenue[month] || 0
+                    const previousMonth = monthIndex > 0 ? allMonths[monthIndex - 1] : null
+                    const previousValue = previousMonth ? (row.monthlyRevenue[previousMonth] || 0) : 0
+
+                    // Calculate trend
+                    let trend: 'up' | 'down' | 'stable' = 'stable'
+                    let bgColor = ''
+                    let textColor = 'text-black'
+
+                    if (monthIndex > 0 && previousValue > 0) {
+                      const percentChange = ((currentValue - previousValue) / previousValue) * 100
+
+                      if (percentChange > 5) {
+                        trend = 'up'
+                        bgColor = 'bg-green-50'
+                        textColor = 'text-green-700'
+                      } else if (percentChange < -5) {
+                        trend = 'down'
+                        bgColor = 'bg-red-50'
+                        textColor = 'text-red-700'
+                      }
+                    }
+
+                    return (
+                      <td key={month} className={`py-3 px-4 text-right ${bgColor} ${textColor} transition-colors`}>
+                        <div className="flex items-center justify-end gap-1">
+                          {trend === 'up' && <TrendingUp className="h-3 w-3 text-green-600" />}
+                          {trend === 'down' && <TrendingDown className="h-3 w-3 text-red-600" />}
+                          <span>{formatCurrency(currentValue)}</span>
+                        </div>
+                      </td>
+                    )
+                  })}
                   <td className="py-3 px-4 text-right font-semibold text-black">
                     {formatCurrency(row.totale)}
                   </td>
