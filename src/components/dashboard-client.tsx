@@ -10,6 +10,7 @@ import { HoursByMacroActivityChart } from '@/components/dashboard/hours-by-macro
 import { HoursByMicroActivityChart } from '@/components/dashboard/hours-by-micro-activity-chart'
 import { CollaboratorSummaryTable } from '@/components/dashboard/collaborator-summary-table'
 import { DepartmentSummaryTable } from '@/components/dashboard/department-summary-table'
+import { ClientSummaryTable } from '@/components/dashboard/client-summary-table'
 
 interface DashboardClientProps {
   initialData: DashboardData
@@ -26,6 +27,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
     hoursByMicroActivity,
     collaboratorSummary,
     departmentSummary,
+    clientSummary,
     availableCollaborators,
     availableDepartments,
     availableMacroActivities,
@@ -140,6 +142,14 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                 Riepilogo Reparti (basato sui filtri applicati)
               </h2>
               <DepartmentSummaryTable data={departmentSummary} isLoading={isLoading} />
+            </div>
+
+            {/* Client Summary Table */}
+            <div>
+              <h2 className="text-xl font-semibold text-black mb-4">
+                Riepilogo Clienti (basato sui filtri applicati)
+              </h2>
+              <ClientSummaryTable data={clientSummary} isLoading={isLoading} />
             </div>
           </div>
 

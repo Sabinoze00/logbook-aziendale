@@ -9,6 +9,7 @@ import {
   getUniqueValues,
   getCollaboratorSummary,
   getDepartmentSummary,
+  getClientSummary,
   aggregateHoursByCollaborator,
   aggregateHoursByClient,
   aggregateHoursByMacroActivity,
@@ -182,9 +183,24 @@ export function useDashboard({ initialData }: UseDashboardProps) {
     return getDepartmentSummary(
       filteredLogbook,
       processedLogbook,
+      data.clients,
+      data.compensi,
+      data.mapping,
       filters
     )
-  }, [filteredLogbook, processedLogbook, filters])
+  }, [filteredLogbook, processedLogbook, data.clients, data.compensi, data.mapping, filters])
+
+  // Get client summary
+  const clientSummary = useMemo(() => {
+    return getClientSummary(
+      filteredLogbook,
+      processedLogbook,
+      data.clients,
+      data.compensi,
+      data.mapping,
+      filters
+    )
+  }, [filteredLogbook, processedLogbook, data.clients, data.compensi, data.mapping, filters])
 
   // Refresh data function
   const refreshData = async () => {
@@ -249,6 +265,7 @@ export function useDashboard({ initialData }: UseDashboardProps) {
     hoursByMicroActivity,
     collaboratorSummary,
     departmentSummary,
+    clientSummary,
 
     // Filters
     filters,
