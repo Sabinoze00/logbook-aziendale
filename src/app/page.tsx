@@ -1,4 +1,6 @@
 import { loadSheetsData } from '@/lib/google-sheets'
+import { loadMappingOverrides } from '@/lib/mapping-overrides'
+import { processLogbookEntries } from '@/lib/data-processor'
 import { DashboardClient } from '@/components/dashboard-client'
 
 export const dynamic = 'force-dynamic'
@@ -34,7 +36,17 @@ export default async function DashboardPage() {
 
     const data = await loadSheetsData(process.env.GOOGLE_SHEETS_URL)
 
-    return <DashboardClient initialData={data} />
+    // Load overrides and process entries server-side
+    const overrides = loadMappingOverrides()
+    const processedLogbook = processLogbookEntries(data.logbook, overrides)
+
+    // Replace the raw logbook with processed entries
+    const processedData = {
+      ...data,
+      logbook: processedLogbook
+    }
+
+    return <DashboardClient initialData={processedData} />
   } catch (error) {
     console.error('Error loading dashboard:', error)
 

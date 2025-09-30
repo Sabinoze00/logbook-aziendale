@@ -103,7 +103,7 @@ export function DepartmentSummaryTable({ data, isLoading }: DepartmentSummaryTab
 
   // Helper function to render sortable header
   const renderSortableHeader = (label: string, key: SortKey) => (
-    <th className="text-right py-3 px-4 font-medium text-black">
+    <th className="text-right py-3 px-4 font-medium text-black bg-white">
       <button
         onClick={() => handleSort(key)}
         className="flex items-center gap-1 hover:text-blue-600 transition-colors ml-auto"
@@ -156,11 +156,11 @@ export function DepartmentSummaryTable({ data, isLoading }: DepartmentSummaryTab
         </Button>
       </CardHeader>
       <CardContent>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto max-h-[600px]">
           <table className="w-full text-sm">
-            <thead>
+            <thead className="sticky top-0 bg-white z-10 shadow-sm">
               <tr className="border-b">
-                <th className="text-left py-3 px-4 font-medium text-black">
+                <th className="text-left py-3 px-4 font-medium text-black bg-white">
                   <button
                     onClick={() => handleSort('reparto')}
                     className="flex items-center gap-1 hover:text-blue-600 transition-colors"

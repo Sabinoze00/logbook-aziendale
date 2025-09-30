@@ -65,8 +65,13 @@ export function calculateSimilarity(str1: string, str2: string): number {
 /**
  * Find the canonical name from a list of names based on similarity
  * Returns the name with the highest occurrence count, or the first one found if all equal
+ * Can accept manual overrides to force specific mappings
  */
-export function findCanonicalName(names: string[], threshold: number = 85): Map<string, string> {
+export function findCanonicalName(
+  names: string[],
+  threshold: number = 85,
+  manualOverrides: Record<string, string> = {}
+): Map<string, string> {
   const nameGroups = new Map<string, string[]>() // normalized -> original names
   const nameCounts = new Map<string, number>()   // original name -> count
 
@@ -119,6 +124,11 @@ export function findCanonicalName(names: string[], threshold: number = 85): Map<
     })
   }
 
+  // Apply manual overrides (these take precedence over fuzzy matching)
+  Object.entries(manualOverrides).forEach(([original, canonical]) => {
+    mapping.set(original, canonical)
+  })
+
   return mapping
 }
 
@@ -128,13 +138,14 @@ export function findCanonicalName(names: string[], threshold: number = 85): Map<
 export function normalizeNames<T extends { [key: string]: unknown }>(
   entries: T[],
   fieldName: keyof T,
-  threshold: number = 85
+  threshold: number = 85,
+  manualOverrides: Record<string, string> = {}
 ): T[] {
   // Extract all unique names
   const allNames = Array.from(new Set(entries.map(entry => String(entry[fieldName]))))
 
   // Find canonical names
-  const nameMapping = findCanonicalName(allNames, threshold)
+  const nameMapping = findCanonicalName(allNames, threshold, manualOverrides)
 
   // Apply mapping
   return entries.map(entry => ({

@@ -2,19 +2,31 @@ import { LogbookEntry, FilterOptions, KPIData, ClientData, CompensData, MappingD
 import { extractMonthFromDate, convertEuToNumber } from './utils'
 import { normalizeNames } from './string-normalizer'
 
-export function processLogbookEntries(entries: LogbookEntry[]): LogbookEntry[] {
+export function processLogbookEntries(
+  entries: LogbookEntry[],
+  overrides?: Record<string, Record<string, string>>
+): LogbookEntry[] {
   // Filter valid entries first
   let processedEntries = entries.map(entry => ({
     ...entry,
     meseFormattato: entry.data ? extractMonthFromDate(entry.data) || undefined : undefined
   })).filter(entry => entry.data && !isNaN(entry.data.getTime()))
 
-  // Normalize names to group similar variants
-  processedEntries = normalizeNames(processedEntries, 'cliente', 85)
-  processedEntries = normalizeNames(processedEntries, 'nome', 85)
-  processedEntries = normalizeNames(processedEntries, 'reparto1', 85)
-  processedEntries = normalizeNames(processedEntries, 'macroAttivita', 85)
-  processedEntries = normalizeNames(processedEntries, 'microAttivita', 85)
+  // Default empty overrides if not provided
+  const mappingOverrides = overrides || {
+    clienti: {},
+    collaboratori: {},
+    reparti: {},
+    macroAttivita: {},
+    microAttivita: {}
+  }
+
+  // Normalize names to group similar variants with manual overrides
+  processedEntries = normalizeNames(processedEntries, 'cliente', 85, mappingOverrides.clienti)
+  processedEntries = normalizeNames(processedEntries, 'nome', 85, mappingOverrides.collaboratori)
+  processedEntries = normalizeNames(processedEntries, 'reparto1', 85, mappingOverrides.reparti)
+  processedEntries = normalizeNames(processedEntries, 'macroAttivita', 85, mappingOverrides.macroAttivita)
+  processedEntries = normalizeNames(processedEntries, 'microAttivita', 85, mappingOverrides.microAttivita)
 
   return processedEntries
 }

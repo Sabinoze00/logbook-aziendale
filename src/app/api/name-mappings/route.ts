@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { loadSheetsData } from '@/lib/google-sheets'
 import { findCanonicalName } from '@/lib/string-normalizer'
+import { loadMappingOverrides } from '@/lib/mapping-overrides'
 
 export const dynamic = 'force-dynamic'
 
@@ -44,12 +45,15 @@ export async function GET() {
       data.logbook.map(row => row.microAttivita).filter(Boolean)
     ))
 
-    // Generate mappings with 85% threshold
-    const clientMapping = findCanonicalName(clientNames, 85)
-    const collaboratorMapping = findCanonicalName(collaboratorNames, 85)
-    const departmentMapping = findCanonicalName(departmentNames, 85)
-    const macroActivityMapping = findCanonicalName(macroActivityNames, 85)
-    const microActivityMapping = findCanonicalName(microActivityNames, 85)
+    // Load manual overrides
+    const overrides = loadMappingOverrides()
+
+    // Generate mappings with 85% threshold and manual overrides
+    const clientMapping = findCanonicalName(clientNames, 85, overrides.clienti)
+    const collaboratorMapping = findCanonicalName(collaboratorNames, 85, overrides.collaboratori)
+    const departmentMapping = findCanonicalName(departmentNames, 85, overrides.reparti)
+    const macroActivityMapping = findCanonicalName(macroActivityNames, 85, overrides.macroAttivita)
+    const microActivityMapping = findCanonicalName(microActivityNames, 85, overrides.microAttivita)
 
     // Convert Maps to objects and filter only non-identical mappings
     const clientMappingObj: Record<string, string> = {}
@@ -119,7 +123,8 @@ export async function GET() {
     const response = {
       generatedAt: new Date().toISOString(),
       threshold: '85%',
-      description: 'Mapping automatico basato su fuzzy matching (Levenshtein distance)',
+      description: 'Mapping automatico basato su fuzzy matching (Levenshtein distance) con override manuali',
+      overridesApplied: overrides,
       stats,
       mappings: {
         clienti: clientMappingObj,
