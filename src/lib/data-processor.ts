@@ -372,21 +372,39 @@ export function getDepartmentSummary(
       }
     })
 
-    // Calculate revenue for this department's clients
+    // Calculate revenue proportional to hours worked by this department
     let totalRevenue = 0
     uniqueClients.forEach(clientName => {
       const mappedClientName = clientMap[clientName] || clientName
       const clientData = clients.find(c => c.cliente === mappedClientName)
 
       if (clientData) {
+        // Calculate total hours worked on this client by ALL departments/collaborators
+        const clientTotalHours = filteredEntries
+          .filter(entry => entry.cliente === clientName)
+          .reduce((sum, entry) => sum + entry.minutiImpiegati, 0) / 60
+
+        // Calculate hours worked on this client by THIS department
+        const departmentClientHours = departmentFilteredEntries
+          .filter(entry => entry.cliente === clientName)
+          .reduce((sum, entry) => sum + entry.minutiImpiegati, 0) / 60
+
+        // Calculate client's total revenue for selected months
+        let clientTotalRevenue = 0
         selectedMonths.forEach(month => {
           if (month && clientData[month]) {
             const revenueValue = typeof clientData[month] === 'string'
               ? convertEuToNumber(clientData[month] as string)
               : clientData[month] as number
-            totalRevenue += revenueValue
+            clientTotalRevenue += revenueValue
           }
         })
+
+        // Proportional revenue: (department hours / total hours) × total revenue
+        if (clientTotalHours > 0) {
+          const proportionalRevenue = (departmentClientHours / clientTotalHours) * clientTotalRevenue
+          totalRevenue += proportionalRevenue
+        }
       }
     })
 
