@@ -444,6 +444,9 @@ export function getClientSummary(
       .filter(Boolean) as string[]
   ))
 
+  console.log('[getClientSummary] Selected months:', selectedMonths)
+  console.log('[getClientSummary] Date range:', filters.startDate, 'to', filters.endDate)
+
   // Client mapping
   const clientMap = mapping.reduce((acc, m) => {
     acc[m.clienteMap] = m.cliente
@@ -469,6 +472,11 @@ export function getClientSummary(
 
     // Calculate costs based on actual hours worked for this client
     let totalCost = 0
+
+    if (clientName === 'Mar.c.a Design') {
+      console.log(`\n[${clientName}] Starting cost calculation`)
+      console.log(`[${clientName}] Collaborators:`, clientCollaborators)
+    }
 
     clientCollaborators.forEach(collaboratorName => {
       // Get compensation for this collaborator in selected months
@@ -500,9 +508,23 @@ export function getClientSummary(
       // Calculate hourly cost and apply to actual hours worked
       if (collaboratorTotalHours > 0) {
         const hourlyCost = collaboratorTotalCompensation / collaboratorTotalHours
-        totalCost += hourlyCost * collaboratorClientHours
+        const collaboratorCost = hourlyCost * collaboratorClientHours
+        totalCost += collaboratorCost
+
+        if (clientName === 'Mar.c.a Design') {
+          console.log(`[${clientName}] ${collaboratorName}:`)
+          console.log(`  - Compenso totale (mesi selezionati): €${collaboratorTotalCompensation.toFixed(2)}`)
+          console.log(`  - Ore totali (mesi selezionati): ${collaboratorTotalHours.toFixed(2)}h`)
+          console.log(`  - Ore sul cliente: ${collaboratorClientHours.toFixed(2)}h`)
+          console.log(`  - Costo orario: €${hourlyCost.toFixed(2)}/h`)
+          console.log(`  - Costo per questo cliente: €${collaboratorCost.toFixed(2)}`)
+        }
       }
     })
+
+    if (clientName === 'Mar.c.a Design') {
+      console.log(`[${clientName}] COSTO TOTALE: €${totalCost.toFixed(2)}\n`)
+    }
 
     // Calculate revenue for this client
     const mappedClientName = clientMap[clientName] || clientName
