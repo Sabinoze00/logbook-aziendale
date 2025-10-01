@@ -483,15 +483,16 @@ export function getClientSummary(
         })
       }
 
-      // Total hours for this collaborator in the period
-      const collaboratorPeriodEntries = allEntries.filter(entry =>
-        entry.nome === collaboratorName &&
-        entry.data >= filters.startDate &&
-        entry.data <= filters.endDate
-      )
-      const collaboratorTotalHours = collaboratorPeriodEntries.reduce((sum, entry) => sum + entry.minutiImpiegati, 0) / 60
+      // Total hours for this collaborator in the selected months
+      const collaboratorMonthEntries = allEntries.filter(entry => {
+        const entryMonth = entry.meseFormattato
+        return entry.nome === collaboratorName &&
+               entryMonth &&
+               selectedMonths.includes(entryMonth)
+      })
+      const collaboratorTotalHours = collaboratorMonthEntries.reduce((sum, entry) => sum + entry.minutiImpiegati, 0) / 60
 
-      // Hours worked by this collaborator for this client
+      // Hours worked by this collaborator for this client in filtered data
       const collaboratorClientHours = clientFilteredEntries
         .filter(entry => entry.nome === collaboratorName)
         .reduce((sum, entry) => sum + entry.minutiImpiegati, 0) / 60
