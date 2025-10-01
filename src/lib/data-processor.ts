@@ -437,14 +437,18 @@ export function getClientSummary(
 ) {
   const clientNames = Array.from(new Set(filteredEntries.map(entry => entry.cliente)))
 
-  // Get selected months for revenue calculation
+  // Get selected months from ALL entries in the date range (not just filtered)
+  // This ensures hourly cost is consistent regardless of filters applied
+  const allEntriesInDateRange = allEntries.filter(entry =>
+    entry.data >= filters.startDate && entry.data <= filters.endDate
+  )
   const selectedMonths = Array.from(new Set(
-    filteredEntries
+    allEntriesInDateRange
       .map(entry => entry.meseFormattato)
       .filter(Boolean) as string[]
   ))
 
-  console.log('[getClientSummary] Selected months:', selectedMonths)
+  console.log('[getClientSummary] Selected months (from date range):', selectedMonths)
   console.log('[getClientSummary] Date range:', filters.startDate, 'to', filters.endDate)
 
   // Client mapping
@@ -470,16 +474,24 @@ export function getClientSummary(
     )
     const totalPeriodHours = totalPeriodEntries.reduce((sum, entry) => sum + entry.minutiImpiegati, 0) / 60
 
+    // Get months where this client has activities (for revenue calculation)
+    const clientMonths = Array.from(new Set(
+      clientFilteredEntries
+        .map(entry => entry.meseFormattato)
+        .filter(Boolean) as string[]
+    ))
+
     // Calculate costs based on actual hours worked for this client
     let totalCost = 0
 
     if (clientName === 'Mar.c.a Design') {
       console.log(`\n[${clientName}] Starting cost calculation`)
       console.log(`[${clientName}] Collaborators:`, clientCollaborators)
+      console.log(`[${clientName}] Client activity months:`, clientMonths)
     }
 
     clientCollaborators.forEach(collaboratorName => {
-      // Get compensation for this collaborator in selected months
+      // Get compensation for this collaborator in selected months (ALL months in range)
       const collaboratorCompensi = compensi.find(c => c.collaboratore === collaboratorName)
       let collaboratorTotalCompensation = 0
 
@@ -491,7 +503,7 @@ export function getClientSummary(
         })
       }
 
-      // Total hours for this collaborator in the selected months
+      // Total hours for this collaborator in the selected months (ALL months in range)
       const collaboratorMonthEntries = allEntries.filter(entry => {
         const entryMonth = entry.meseFormattato
         return entry.nome === collaboratorName &&
@@ -513,8 +525,8 @@ export function getClientSummary(
 
         if (clientName === 'Mar.c.a Design') {
           console.log(`[${clientName}] ${collaboratorName}:`)
-          console.log(`  - Compenso totale (mesi selezionati): €${collaboratorTotalCompensation.toFixed(2)}`)
-          console.log(`  - Ore totali (mesi selezionati): ${collaboratorTotalHours.toFixed(2)}h`)
+          console.log(`  - Compenso totale (range completo): €${collaboratorTotalCompensation.toFixed(2)}`)
+          console.log(`  - Ore totali (range completo): ${collaboratorTotalHours.toFixed(2)}h`)
           console.log(`  - Ore sul cliente: ${collaboratorClientHours.toFixed(2)}h`)
           console.log(`  - Costo orario: €${hourlyCost.toFixed(2)}/h`)
           console.log(`  - Costo per questo cliente: €${collaboratorCost.toFixed(2)}`)
@@ -526,13 +538,13 @@ export function getClientSummary(
       console.log(`[${clientName}] COSTO TOTALE: €${totalCost.toFixed(2)}\n`)
     }
 
-    // Calculate revenue for this client
+    // Calculate revenue for this client (only months where client has activities)
     const mappedClientName = clientMap[clientName] || clientName
     const clientData = clients.find(c => c.cliente === mappedClientName)
 
     let totalRevenue = 0
     if (clientData) {
-      selectedMonths.forEach(month => {
+      clientMonths.forEach(month => {
         if (month && clientData[month]) {
           const revenueValue = typeof clientData[month] === 'string'
             ? convertEuToNumber(clientData[month] as string)
