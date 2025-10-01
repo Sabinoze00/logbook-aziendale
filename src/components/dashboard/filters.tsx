@@ -82,25 +82,26 @@ export function Filters({
   }
 
   return (
-    <Card className="mb-6">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="flex items-center gap-2">
-          <Calendar className="h-5 w-5" />
-          Filtri
-        </CardTitle>
-        <Button onClick={onRefresh} disabled={isLoading} size="sm" variant="outline">
-          <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-          Ricarica
-        </Button>
+    <Card className="mb-0">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Calendar className="h-4 w-4" />
+            Filtri
+          </CardTitle>
+          <Button onClick={onRefresh} disabled={isLoading} size="sm" variant="outline" className="h-8 px-2">
+            <RefreshCw className={`h-3 w-3 ${isLoading ? 'animate-spin' : ''}`} />
+          </Button>
+        </div>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4 pt-0">
         <div>
-          <label className="block text-sm font-medium mb-2 text-black">Intervalli Predefiniti</label>
-          <div className="flex flex-wrap gap-2">
+          <label className="block text-xs font-medium mb-2 text-black">Intervalli Predefiniti</label>
+          <div className="grid grid-cols-2 gap-1.5">
             {[
               { key: 'oggi', label: 'Oggi' },
-              { key: 'ultimi7giorni', label: 'Ultimi 7 giorni' },
-              { key: 'ultimi30giorni', label: 'Ultimi 30 giorni' },
+              { key: 'ultimi7giorni', label: '7 gg' },
+              { key: 'ultimi30giorni', label: '30 gg' },
               { key: 'questomese', label: 'Questo mese' },
               { key: 'mesescorso', label: 'Mese scorso' },
               { key: 'questanno', label: 'Quest\'anno' }
@@ -111,34 +112,34 @@ export function Filters({
                 variant="outline"
                 size="sm"
                 onClick={() => applyPresetRange(preset.key)}
-                className="text-xs"
+                className="text-xs h-7 px-2"
               >
                 {preset.label}
               </Button>
             ))}
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-3">
           <div>
-            <label className="block text-sm font-medium mb-2 text-black">Data Inizio</label>
+            <label className="block text-xs font-medium mb-1.5 text-black">Data Inizio</label>
             <input
               type="date"
               value={formatDateForInput(filters.startDate)}
               onChange={(e) => handleDateChange('startDate', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2 text-black">Data Fine</label>
+            <label className="block text-xs font-medium mb-1.5 text-black">Data Fine</label>
             <input
               type="date"
               value={formatDateForInput(filters.endDate)}
               onChange={(e) => handleDateChange('endDate', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
             />
           </div>
         </div>
-        <div className="flex flex-col space-y-4">
+        <div className="flex flex-col space-y-3">
           <MultiSelectFilter
             label="Collaboratori"
             options={availableCollaborators}
@@ -188,15 +189,15 @@ const MultiSelectFilter = memo(function MultiSelectFilter({ label, options, sele
 
   return (
     <div>
-      <label className="block text-sm font-medium mb-2 text-black">{label}</label>
+      <label className="block text-xs font-medium mb-1.5 text-black">{label}</label>
       <Listbox value={selected} onChange={onChange} multiple>
         <div className="relative">
-          <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left border border-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 sm:text-sm">
+          <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-2 pr-8 text-left border border-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 text-sm">
             <span className="block truncate text-black">
-              {selected.length > 0 ? `${selected.length} selezionati` : `Seleziona ${label.toLowerCase()}`}
+              {selected.length > 0 ? `${selected.length} selez.` : `${label}`}
             </span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-              <ChevronsUpDown className="h-5 w-5 text-gray-400" aria-hidden="true" />
+              <ChevronsUpDown className="h-4 w-4 text-gray-400" aria-hidden="true" />
             </span>
           </Listbox.Button>
           <Transition

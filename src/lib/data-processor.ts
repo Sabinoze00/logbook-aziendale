@@ -448,9 +448,6 @@ export function getClientSummary(
       .filter(Boolean) as string[]
   ))
 
-  console.log('[getClientSummary] Selected months (from date range):', selectedMonths)
-  console.log('[getClientSummary] Date range:', filters.startDate, 'to', filters.endDate)
-
   // Client mapping
   const clientMap = mapping.reduce((acc, m) => {
     acc[m.clienteMap] = m.cliente
@@ -484,12 +481,6 @@ export function getClientSummary(
     // Calculate costs based on actual hours worked for this client
     let totalCost = 0
 
-    if (clientName === 'Mar.c.a Design') {
-      console.log(`\n[${clientName}] Starting cost calculation`)
-      console.log(`[${clientName}] Collaborators:`, clientCollaborators)
-      console.log(`[${clientName}] Client activity months:`, clientMonths)
-    }
-
     clientCollaborators.forEach(collaboratorName => {
       // Get compensation for this collaborator in selected months (ALL months in range)
       const collaboratorCompensi = compensi.find(c => c.collaboratore === collaboratorName)
@@ -522,21 +513,8 @@ export function getClientSummary(
         const hourlyCost = collaboratorTotalCompensation / collaboratorTotalHours
         const collaboratorCost = hourlyCost * collaboratorClientHours
         totalCost += collaboratorCost
-
-        if (clientName === 'Mar.c.a Design') {
-          console.log(`[${clientName}] ${collaboratorName}:`)
-          console.log(`  - Compenso totale (range completo): €${collaboratorTotalCompensation.toFixed(2)}`)
-          console.log(`  - Ore totali (range completo): ${collaboratorTotalHours.toFixed(2)}h`)
-          console.log(`  - Ore sul cliente: ${collaboratorClientHours.toFixed(2)}h`)
-          console.log(`  - Costo orario: €${hourlyCost.toFixed(2)}/h`)
-          console.log(`  - Costo per questo cliente: €${collaboratorCost.toFixed(2)}`)
-        }
       }
     })
-
-    if (clientName === 'Mar.c.a Design') {
-      console.log(`[${clientName}] COSTO TOTALE: €${totalCost.toFixed(2)}\n`)
-    }
 
     // Calculate revenue for this client (only months where client has activities)
     const mappedClientName = clientMap[clientName] || clientName

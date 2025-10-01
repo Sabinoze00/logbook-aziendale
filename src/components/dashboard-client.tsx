@@ -62,28 +62,28 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
-        <div className="px-8 py-4">
-          <div className="flex justify-between items-center">
+        <div className="px-4 md:px-6 lg:px-8 py-3">
+          <div className="flex justify-between items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Dashboard Aziendale</h1>
-              <p className="text-sm text-gray-900 mt-1">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Dashboard Aziendale</h1>
+              <p className="text-xs md:text-sm text-gray-900 mt-1">
                 Visualizzazione e analisi dei dati aziendali in tempo reale
               </p>
             </div>
-            <div className="text-sm text-gray-900">
-              Record visualizzati: {recordCount}
+            <div className="text-xs md:text-sm text-gray-900 whitespace-nowrap">
+              Record: {recordCount}
             </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+      <main className="px-4 md:px-6 lg:px-8 py-4 md:py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] xl:grid-cols-[320px_1fr] gap-4 md:gap-6">
 
-          {/* Colonna Filtri (20% della larghezza su schermi grandi) */}
-          <div className="lg:col-span-1 filters-column">
-            <div className="lg:sticky lg:top-8">
+          {/* Colonna Filtri (larghezza fissa su schermi grandi) */}
+          <div className="filters-column">
+            <div className="lg:sticky lg:top-4">
               <Filters
                 filters={filters}
                 onFiltersChange={setFilters}
@@ -97,18 +97,18 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
             </div>
           </div>
 
-          {/* Colonna Contenuti (80% della larghezza) */}
-          <div className="lg:col-span-4 space-y-8">
+          {/* Colonna Contenuti (resto dello spazio disponibile) */}
+          <div className="space-y-6 md:space-y-8 min-w-0">
             {/* Metrics Cards */}
             <div>
-              <h2 className="text-xl font-semibold text-black mb-4">
+              <h2 className="text-lg md:text-xl font-semibold text-black mb-3">
                 Metriche Chiave del Periodo Selezionato
               </h2>
               <MetricsCards kpis={kpis} isLoading={isLoading} />
             </div>
 
             {/* Layout a griglia per i grafici - sempre 2 per riga */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
               <HoursByCollaboratorChart
                 data={hoursByCollaborator}
                 isLoading={isLoading}
@@ -121,7 +121,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
               />
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
               <HoursByMacroActivityChart
                 data={hoursByMacroActivity}
                 isLoading={isLoading}
@@ -132,7 +132,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
             {/* Collaborator Summary Table */}
             <div>
-              <h2 className="text-xl font-semibold text-black mb-4">
+              <h2 className="text-lg md:text-xl font-semibold text-black mb-3">
                 Riepilogo Collaboratori (basato sui filtri applicati)
               </h2>
               <CollaboratorSummaryTable data={collaboratorSummary} isLoading={isLoading} />
@@ -140,7 +140,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
             {/* Department Summary Table */}
             <div>
-              <h2 className="text-xl font-semibold text-black mb-4">
+              <h2 className="text-lg md:text-xl font-semibold text-black mb-3">
                 Riepilogo Reparti (basato sui filtri applicati)
               </h2>
               <DepartmentSummaryTable data={departmentSummary} isLoading={isLoading} />
@@ -148,7 +148,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
             {/* Client Summary Table */}
             <div>
-              <h2 className="text-xl font-semibold text-black mb-4">
+              <h2 className="text-lg md:text-xl font-semibold text-black mb-3">
                 Riepilogo Clienti (basato sui filtri applicati)
               </h2>
               <ClientSummaryTable data={clientSummary} isLoading={isLoading} />
@@ -156,7 +156,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
             {/* Client Monthly Revenue Table */}
             <div>
-              <h2 className="text-xl font-semibold text-black mb-4">
+              <h2 className="text-lg md:text-xl font-semibold text-black mb-3">
                 Fatturato Mensile per Cliente
               </h2>
               <ClientMonthlyRevenueTable data={clientMonthlyRevenue} isLoading={isLoading} />
